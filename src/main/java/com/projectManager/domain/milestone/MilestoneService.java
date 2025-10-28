@@ -8,7 +8,7 @@ import java.util.List;
 public interface MilestoneService {
     List<Milestone> listMilestones();
     void createMilestone(Milestone milestone);
-    Milestone getMilestone(Long id);
+    Milestone getMilestone(String id);
     void updateMilestone(Milestone milestone);
-    void deleteMilestone(Long id);
+    void deleteMilestone(String id);
 }

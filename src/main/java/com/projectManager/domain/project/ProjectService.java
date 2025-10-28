@@ -7,8 +7,8 @@ import java.util.List;
 @Service
 public interface ProjectService {
     List<Project> listProjects();
-    void createProject(Project project);
-    Project getProject(Long uuid);
-    Project updateProject(Long uuid, Project project);
-    void deleteProject(Long uuid);
+    Project createProject(Project project);
+    Project getProject(String uuid);
+    Project updateProject(String uuid, Project project);
+    void deleteProject(String uuid);
 }

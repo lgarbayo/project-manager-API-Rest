@@ -4,7 +4,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import com.projectManager.exception.InvalidArgumentException;
+
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -19,32 +22,35 @@ public class ProjectServiceImpl implements ProjectService{
     }
 
     @Override
-    public void createProject(Project project) {
+    public Project createProject(Project project) {
         log.debug("Creating new project: {}", project);
+        validateProject(project);
+        project.setUuid(UUID.randomUUID().toString());
         log.info("New project created with title: {}", project.getTitle());
         projectRepository.save(project);
+        return project;
     }
 
     @Override
-    public Project getProject(Long uuid) {
+    public Project getProject(String uuid) {
         log.debug("Fetching project with ID: {}", uuid);
         Project project = projectRepository.findById(uuid).orElse(null);
         if (project == null) {
             log.warn("Project with ID: {} not found.", uuid);
             //throw exception
         }
-        log.debug("Project found: {}", project);
+        log.info("Project found: {}", project);
         return project;
     }
 
     @Override
-    public Project updateProject(Long uuid, Project project) {
+    public Project updateProject(String uuid, Project project) {
         log.info("Updating project with ID: {}", uuid);
         return projectRepository.update(project);
     }
 
     @Override
-    public void deleteProject(Long uuid) {
+    public void deleteProject(String uuid) {
         log.info("Attempting to delete project with ID: {}", uuid);
         Project project = projectRepository.findById(uuid).orElse(null);
         if (project == null) {
@@ -60,5 +66,20 @@ public class ProjectServiceImpl implements ProjectService{
             //handle exception
         }
         projectRepository.deleteById(uuid);
+    }
+
+    public void validateProject(Project project) {
+        if (project.getTitle() == null || project.getTitle().trim().isEmpty()) {
+            log.warn("Attemp to create/update a project with an empty title.");
+            throw new InvalidArgumentException("Project title is required and cannot be empty");
+        }
+        if (project.getStartDate() == null) {
+            log.warn("Attemp to create/update a project with a null start date.");
+            throw new InvalidArgumentException("Project start date is required");
+        }
+        if (project.getEndDate() == null) {
+            log.warn("Attemp to create/update a project with a null end date.");
+            throw new InvalidArgumentException("Project end date is required");
+        }
     }
 }

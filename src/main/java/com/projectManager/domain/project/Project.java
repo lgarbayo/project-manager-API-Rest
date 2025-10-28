@@ -19,4 +19,5 @@ public class Project {
     @NonNull private DateType startDate;
     @NonNull private DateType endDate;
     private Map<String, String> additionalFields;
+    // ejemplos de campos adicionales pueden ser owner, department, priority...
 }

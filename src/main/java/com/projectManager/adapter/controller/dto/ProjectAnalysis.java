@@ -1,6 +1,5 @@
-package com.projectManager.domain.analysis;
+package com.projectManager.adapter.controller.dto;
 
-import com.projectManager.domain.dateType.DateType;
 import com.projectManager.domain.project.Project;
 import lombok.AllArgsConstructor;
 import lombok.Data;

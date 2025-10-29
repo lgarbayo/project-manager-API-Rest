@@ -58,9 +58,11 @@ public class ProjectController {
         log.debug("Project deleted with UUID: {}", projectUuid);
     }
 
+    /*
     @GetMapping("/{projectUuid}/analysis")
     public ProjectAnalysis analyze(@PathVariable String projectUuid){ 
         log.info("GET /project/{projectUuid}/analysis - Analyzing project with UUID: {}", projectUuid);
         // devolver project analysis
     }
+    */
 }

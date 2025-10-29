@@ -37,7 +37,7 @@ public class ProjectServiceImpl implements ProjectService{
         Project project = projectRepository.findById(uuid).orElse(null);
         if (project == null) {
             log.warn("Project with ID: {} not found.", uuid);
-            //throw exception
+            throw new InvalidArgumentException("Project not found");
         }
         log.info("Project found: {}", project);
         return project;
@@ -45,17 +45,21 @@ public class ProjectServiceImpl implements ProjectService{
 
     @Override
     public Project updateProject(String uuid, Project project) {
-        log.info("Updating project with ID: {}", uuid);
-        return projectRepository.update(project);
+        log.debug("Updating project with ID: {}", uuid);
+        validateProject(project);
+        project.setUuid(uuid);
+        log.info("Project updated with title: {}", project.getTitle());
+        projectRepository.update(project);
+        return project;
     }
 
     @Override
     public void deleteProject(String uuid) {
-        log.info("Attempting to delete project with ID: {}", uuid);
+        log.debug("Attempting to delete project with ID: {}", uuid);
         Project project = projectRepository.findById(uuid).orElse(null);
         if (project == null) {
             log.warn("Project with ID: {} not found. Deletion aborted.", uuid);
-            //throw exception
+            throw new InvalidArgumentException("Project not found");
         }
         log.debug("Found project for deletion: {}", project);
         try {
@@ -63,11 +67,11 @@ public class ProjectServiceImpl implements ProjectService{
             log.info("Successfully deleted project with ID: {}", uuid);
         } catch (Exception e) {
             log.error("Error occurred while deleting project with ID: {}: {}", uuid, e.getMessage());
-            //handle exception
+            throw new InvalidArgumentException("Error occurred while deleting project");
         }
-        projectRepository.deleteById(uuid);
     }
 
+    @Override
     public void validateProject(Project project) {
         if (project.getTitle() == null || project.getTitle().trim().isEmpty()) {
             log.warn("Attemp to create/update a project with an empty title.");

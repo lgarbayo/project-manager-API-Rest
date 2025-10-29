@@ -11,4 +11,5 @@ public interface ProjectService {
     Project getProject(String uuid);
     Project updateProject(String uuid, Project project);
     void deleteProject(String uuid);
+    void validateProject(Project project);
 }

@@ -12,8 +12,8 @@ import java.util.ArrayList;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MilestoneAnalysis {
-    private String milestoneUuid;
-    private String milestoneTitle;
+    @NonNull private String milestoneUuid;
+    @NonNull private String milestoneTitle;
     @NonNull private DateType startDate;
     @NonNull private DateType endDate;
     @NonNull private Long initialCompletion;

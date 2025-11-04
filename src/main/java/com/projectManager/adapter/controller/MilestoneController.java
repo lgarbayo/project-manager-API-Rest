@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.projectManager.adapter.controller.command.UpsertMilestoneCommand;
+import com.projectManager.adapter.controller.mapper.RestMapper;
+import com.projectManager.adapter.controller.response.MilestoneResponse;
 import com.projectManager.domain.milestone.Milestone;
 import com.projectManager.domain.milestone.MilestoneService;
 import com.projectManager.exception.InvalidArgumentException;
@@ -25,48 +27,63 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class MilestoneController {
     private final MilestoneService milestoneService;
+    private final RestMapper restMapper;
 
     @GetMapping
-    public List<Milestone> listMilestones(@PathVariable String projectUuid) {
+    public List<MilestoneResponse> listMilestones(@PathVariable String projectUuid) {
         log.info("GET /project/{}/milestone - Retrieving milestones", projectUuid);
         List<Milestone> milestones = milestoneService.listMilestonesByProject(projectUuid);
         log.debug("Milestones retrieved for project {}: {}", projectUuid, milestones.size());
-        return milestones;
+        return restMapper.toMilestoneResponseList(milestones);
     }
 
     @PostMapping
-    public Milestone createMilestone(
+    public MilestoneResponse createMilestone(
             @PathVariable String projectUuid,
             @RequestBody UpsertMilestoneCommand command
     ) {
         log.info("POST /project/{}/milestone - Creating new milestone", projectUuid);
-        Milestone createdMilestone = milestoneService.createMilestone(toMilestone(command, projectUuid));
+        
+        if (command == null) {
+            log.warn("Attempted to create milestone with null command for project {}", projectUuid);
+            throw new InvalidArgumentException("Milestone data is required");
+        }
+        
+        Milestone milestone = restMapper.toMilestone(command, projectUuid);
+        Milestone createdMilestone = milestoneService.createMilestone(milestone);
         log.debug("Milestone created for project {}: {}", projectUuid, createdMilestone.getTitle());
-        return createdMilestone;
+        return restMapper.toMilestoneResponse(createdMilestone);
     }
 
     @GetMapping("/{milestoneUuid}")
-    public Milestone getMilestone(
+    public MilestoneResponse getMilestone(
             @PathVariable String projectUuid,
             @PathVariable String milestoneUuid
     ) {
         log.info("GET /project/{}/milestone/{} - Retrieving milestone", projectUuid, milestoneUuid);
         Milestone milestone = ensureMilestoneBelongsToProject(projectUuid, milestoneUuid);
         log.debug("Milestone retrieved for project {}: {}", projectUuid, milestone.getTitle());
-        return milestone;
+        return restMapper.toMilestoneResponse(milestone);
     }
 
     @PutMapping("/{milestoneUuid}")
-    public Milestone updateMilestone(
+    public MilestoneResponse updateMilestone(
             @PathVariable String projectUuid,
             @PathVariable String milestoneUuid,
             @RequestBody UpsertMilestoneCommand command
     ) {
         log.info("PUT /project/{}/milestone/{} - Updating milestone", projectUuid, milestoneUuid);
+        
+        if (command == null) {
+            log.warn("Attempted to update milestone with null command for project {}", projectUuid);
+            throw new InvalidArgumentException("Milestone data is required");
+        }
+        
         ensureMilestoneBelongsToProject(projectUuid, milestoneUuid);
-        Milestone updatedMilestone = milestoneService.updateMilestone(milestoneUuid, toMilestone(command, projectUuid));
+        Milestone milestone = restMapper.toMilestone(command, projectUuid);
+        Milestone updatedMilestone = milestoneService.updateMilestone(milestoneUuid, milestone);
         log.debug("Milestone updated for project {}: {}", projectUuid, updatedMilestone.getTitle());
-        return updatedMilestone;
+        return restMapper.toMilestoneResponse(updatedMilestone);
     }
 
     @DeleteMapping("/{milestoneUuid}")
@@ -78,19 +95,6 @@ public class MilestoneController {
         ensureMilestoneBelongsToProject(projectUuid, milestoneUuid);
         milestoneService.deleteMilestone(milestoneUuid);
         log.debug("Milestone deleted for project {} with UUID {}", projectUuid, milestoneUuid);
-    }
-
-    private Milestone toMilestone(UpsertMilestoneCommand command, String projectUuid) {
-        if (command == null) {
-            log.warn("Attempt to upsert a milestone with null command for project {}", projectUuid);
-            throw new InvalidArgumentException("Milestone data is required");
-        }
-        Milestone milestone = new Milestone();
-        milestone.setProjectUuid(projectUuid);
-        milestone.setTitle(command.getTitle());
-        milestone.setDate(command.getDate());
-        milestone.setDescription(command.getDescription());
-        return milestone;
     }
 
     private Milestone ensureMilestoneBelongsToProject(String projectUuid, String milestoneUuid) {

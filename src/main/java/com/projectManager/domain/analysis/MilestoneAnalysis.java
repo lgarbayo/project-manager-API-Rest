@@ -1,4 +1,4 @@
-package com.projectManager.adapter.controller.dto;
+package com.projectManager.domain.analysis;
 
 import com.projectManager.domain.dateType.DateType;
 import lombok.AllArgsConstructor;
@@ -16,7 +16,7 @@ public class MilestoneAnalysis {
     @NonNull private String milestoneTitle;
     @NonNull private DateType startDate;
     @NonNull private DateType endDate;
-    @NonNull private Long initialCompletion;
-    @NonNull private Long endCompletion;
-    @NonNull private ArrayList<TaskAnalysis> tasklist;
+    private double initialCompletion;
+    private double endCompletion;
+    @NonNull private ArrayList<TaskAnalysis> taskList;
 }

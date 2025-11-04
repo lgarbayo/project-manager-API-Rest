@@ -1,4 +1,4 @@
-package com.projectManager.adapter.controller.dto;
+package com.projectManager.domain.analysis;
 
 import com.projectManager.domain.project.Project;
 import lombok.AllArgsConstructor;

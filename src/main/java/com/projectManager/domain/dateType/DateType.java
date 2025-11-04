@@ -10,6 +10,6 @@ import lombok.NonNull;
 @AllArgsConstructor
 public class DateType {
     @NonNull private int year;
-    @NonNull private int month;
-    @NonNull private int day;
+    @NonNull private int month; // 0-11
+    @NonNull private int week;  // 0-3
 }

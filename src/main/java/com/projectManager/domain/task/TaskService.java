@@ -7,6 +7,7 @@ import java.util.List;
 @Service
 public interface TaskService {
     List<Task> listTasks();
+    List<Task> listTasksByProject(String projectUuid);
     Task createTask(Task task);
     Task getTask(String uuid);
     Task updateTask(String uuid, Task task);

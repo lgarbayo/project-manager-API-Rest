@@ -1,4 +1,4 @@
-package com.projectManager.adapter.controller.dto;
+package com.projectManager.domain.analysis;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -11,6 +11,6 @@ import lombok.NonNull;
 public class TaskAnalysis {
     @NonNull private String taskUuid;
     @NonNull private String taskTitle;
-    @NonNull private Long initialCompletion;
-    @NonNull private Long endCompletion;
+    private double initialCompletion;
+    private double endCompletion;
 }

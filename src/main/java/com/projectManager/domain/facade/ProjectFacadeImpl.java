@@ -1,0 +1,47 @@
+package com.projectManager.domain.facade;
+
+import org.springframework.stereotype.Component;
+
+import com.projectManager.domain.milestone.Milestone;
+import com.projectManager.domain.milestone.MilestoneService;
+import com.projectManager.domain.task.Task;
+import com.projectManager.domain.task.TaskService;
+import com.projectManager.exception.ConflictException;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+import java.util.List;
+
+@Component
+@RequiredArgsConstructor
+@Slf4j
+public class ProjectFacadeImpl implements ProjectFacade {
+    
+    private final MilestoneService milestoneService;
+    private final TaskService taskService;
+    
+    @Override
+    public void checkDependencies(String projectUuid) {
+        if (projectUuid == null || projectUuid.trim().isEmpty()) {
+            log.warn("Attempted to check dependencies with null or empty project UUID");
+            throw new ConflictException("Project UUID cannot be null or empty");
+        }
+        
+        log.debug("Checking dependencies for project: {}", projectUuid);
+        
+        List<Milestone> milestones = milestoneService.listMilestonesByProject(projectUuid);
+        if (!milestones.isEmpty()) {
+            log.warn("Cannot delete project {} - has {} associated milestones", projectUuid, milestones.size());
+            throw new ConflictException("Cannot delete project: project has " + milestones.size() + " associated milestones");
+        }
+
+        List<Task> tasks = taskService.listTasksByProject(projectUuid);
+        if (!tasks.isEmpty()) {
+            log.warn("Cannot delete project {} - has {} associated tasks", projectUuid, tasks.size());
+            throw new ConflictException("Cannot delete project: project has " + tasks.size() + " associated tasks");
+        }
+        
+        log.debug("Project {} has no dependencies, safe to delete", projectUuid);
+    }
+}

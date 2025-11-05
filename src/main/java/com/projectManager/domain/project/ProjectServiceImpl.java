@@ -2,26 +2,24 @@ package com.projectManager.domain.project;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.stereotype.Service;
 
 import com.projectManager.exception.InvalidArgumentException;
 import com.projectManager.exception.ResourceNotFoundException;
 import com.projectManager.exception.ConflictException;
-import com.projectManager.domain.milestone.MilestoneService;
-import com.projectManager.domain.milestone.Milestone;
-import com.projectManager.domain.task.TaskService;
-import com.projectManager.domain.task.Task;
 
 import java.util.List;
 import java.util.UUID;
+
+import com.projectManager.domain.facade.ProjectFacade;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class ProjectServiceImpl implements ProjectService {
     private final ProjectRepository projectRepository;
-    private final MilestoneService milestoneService;
-    private final TaskService taskService;
+    private final ProjectFacade projectFacade;
 
     @Override
     public List<Project> listProjects() {
@@ -70,8 +68,7 @@ public class ProjectServiceImpl implements ProjectService {
         validateUuid(uuid);
         Project project = getProject(uuid);
         
-        // Verificar dependencias antes de eliminar
-        checkProjectDependencies(uuid);
+        projectFacade.checkDependencies(uuid);
         
         log.debug("Found project for deletion: {}", project);
         try {
@@ -108,23 +105,5 @@ public class ProjectServiceImpl implements ProjectService {
             log.warn("Attempt to use an empty project UUID.");
             throw new InvalidArgumentException("Project UUID is required");
         }
-    }
-    
-    private void checkProjectDependencies(String projectUuid) {
-        // verify if there are associated milestones
-        List<Milestone> projectMilestones = milestoneService.listMilestonesByProject(projectUuid);
-        if (!projectMilestones.isEmpty()) {
-            log.warn("Cannot delete project {} - has {} associated milestones", projectUuid, projectMilestones.size());
-            throw new ConflictException("Cannot delete project with " + projectMilestones.size() + " associated milestones. Delete milestones first.");
-        }
-
-        // verify if there are associated tasks
-        List<Task> projectTasks = taskService.listTasksByProject(projectUuid);
-        if (!projectTasks.isEmpty()) {
-            log.warn("Cannot delete project {} - has {} associated tasks", projectUuid, projectTasks.size());
-            throw new ConflictException("Cannot delete project with " + projectTasks.size() + " associated tasks. Delete tasks first.");
-        }
-        
-        log.debug("Project {} has no dependencies, safe to delete", projectUuid);
     }
 }

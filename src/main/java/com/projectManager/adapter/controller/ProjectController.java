@@ -32,15 +32,15 @@ public class ProjectController {
     
     @GetMapping
     public List<ProjectResponse> listProjects() {
-        log.info("GET /project - Retrieving all projects");
+        log.debug("GET /project - Retrieving all projects");
         List<Project> projects = projectService.listProjects();
-        log.debug("Projects retrieved: {}", projects.size());
+        log.info("Retrieved {} projects successfully", projects.size());
         return restMapper.toProjectResponseList(projects);
     }
 
     @PostMapping
     public ProjectResponse create(@RequestBody UpsertProjectCommand command) {
-        log.info("POST /project - Creating new project: {}", command != null ? command.getTitle() : "null");
+        log.debug("POST /project - Creating new project: {}", command != null ? command.getTitle() : "null");
         
         if (command == null) {
             log.warn("Attempted to create project with null command");
@@ -49,21 +49,21 @@ public class ProjectController {
         
         Project project = restMapper.toProject(command);
         Project createdProject = projectService.createProject(project);
-        log.debug("Project created: {}", createdProject.getTitle());
+        log.info("Project created successfully: {}", createdProject.getTitle());
         return restMapper.toProjectResponse(createdProject);
     }
 
     @GetMapping("/{projectUuid}")
     public ProjectResponse getProject(@PathVariable String projectUuid) {
-        log.info("GET /project/{projectUuid} - Retrieving project with UUID: {}", projectUuid);
+        log.debug("GET /project/{} - Retrieving project", projectUuid);
         Project project = projectService.getProject(projectUuid);
-        log.debug("Project retrieved: {}", project.getTitle());
+        log.info("Project retrieved successfully: {}", project.getTitle());
         return restMapper.toProjectResponse(project);
     }
 
     @PutMapping("/{projectUuid}")
     public ProjectResponse updateProject(@PathVariable String projectUuid, @RequestBody UpsertProjectCommand command) {
-        log.info("PUT /project/{projectUuid} - Updating project with UUID: {}", projectUuid);
+        log.debug("PUT /project/{} - Updating project", projectUuid);
         
         if (command == null) {
             log.warn("Attempted to update project {} with null command", projectUuid);
@@ -72,14 +72,14 @@ public class ProjectController {
         
         Project project = restMapper.toProject(command);
         Project updatedProject = projectService.updateProject(projectUuid, project);
-        log.debug("Project updated: {}", updatedProject.getTitle());
+        log.info("Project updated successfully: {}", updatedProject.getTitle());
         return restMapper.toProjectResponse(updatedProject);
     }
 
     @DeleteMapping("/{projectUuid}")
     public void deleteProject(@PathVariable String projectUuid) {
-        log.info("DELETE /project/{projectUuid} - Deleting project with UUID: {}", projectUuid);
+        log.debug("DELETE /project/{} - Deleting project", projectUuid);
         projectService.deleteProject(projectUuid);
-        log.debug("Project deleted with UUID: {}", projectUuid);
+        log.info("Project deleted successfully: {}", projectUuid);
     }
 }

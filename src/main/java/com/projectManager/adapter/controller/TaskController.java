@@ -31,9 +31,9 @@ public class TaskController {
 
     @GetMapping
     public List<TaskResponse> listTasks(@PathVariable String projectUuid) {
-        log.info("GET /project/{}/task - Retrieving tasks", projectUuid);
+        log.debug("GET /project/{}/task - Retrieving tasks", projectUuid);
         List<Task> tasks = taskService.listTasksByProject(projectUuid);
-        log.debug("Tasks retrieved for project {}: {}", projectUuid, tasks.size());
+        log.info("Retrieved {} tasks for project {}", tasks.size(), projectUuid);
         return restMapper.toTaskResponseList(tasks);
     }
 
@@ -42,7 +42,7 @@ public class TaskController {
             @PathVariable String projectUuid,
             @RequestBody UpsertTaskCommand command
     ) {
-        log.info("POST /project/{}/task - Creating new task", projectUuid);
+        log.debug("POST /project/{}/task - Creating new task", projectUuid);
         
         if (command == null) {
             log.warn("Attempted to create task with null command for project {}", projectUuid);
@@ -51,7 +51,7 @@ public class TaskController {
         
         Task task = restMapper.toTask(command, projectUuid);
         Task createdTask = taskService.createTask(task);
-        log.debug("Task created for project {}: {}", projectUuid, createdTask.getTitle());
+        log.info("Task created successfully for project {}: {}", projectUuid, createdTask.getTitle());
         return restMapper.toTaskResponse(createdTask);
     }
 
@@ -60,9 +60,9 @@ public class TaskController {
             @PathVariable String projectUuid,
             @PathVariable String taskUuid
     ) {
-        log.info("GET /project/{}/task/{} - Retrieving task", projectUuid, taskUuid);
+        log.debug("GET /project/{}/task/{} - Retrieving task", projectUuid, taskUuid);
         Task task = ensureTaskBelongsToProject(projectUuid, taskUuid);
-        log.debug("Task retrieved for project {}: {}", projectUuid, task.getTitle());
+        log.info("Task retrieved successfully for project {}: {}", projectUuid, task.getTitle());
         return restMapper.toTaskResponse(task);
     }
 
@@ -72,7 +72,7 @@ public class TaskController {
             @PathVariable String taskUuid,
             @RequestBody UpsertTaskCommand command
     ) {
-        log.info("PUT /project/{}/task/{} - Updating task", projectUuid, taskUuid);
+        log.debug("PUT /project/{}/task/{} - Updating task", projectUuid, taskUuid);
         
         if (command == null) {
             log.warn("Attempted to update task with null command for project {}", projectUuid);
@@ -82,7 +82,7 @@ public class TaskController {
         ensureTaskBelongsToProject(projectUuid, taskUuid);
         Task task = restMapper.toTask(command, projectUuid);
         Task updatedTask = taskService.updateTask(taskUuid, task);
-        log.debug("Task updated for project {}: {}", projectUuid, updatedTask.getTitle());
+        log.info("Task updated successfully for project {}: {}", projectUuid, updatedTask.getTitle());
         return restMapper.toTaskResponse(updatedTask);
     }
 
@@ -91,10 +91,10 @@ public class TaskController {
             @PathVariable String projectUuid,
             @PathVariable String taskUuid
     ) {
-        log.info("DELETE /project/{}/task/{} - Deleting task", projectUuid, taskUuid);
+        log.debug("DELETE /project/{}/task/{} - Deleting task", projectUuid, taskUuid);
         ensureTaskBelongsToProject(projectUuid, taskUuid);
         taskService.deleteTask(taskUuid);
-        log.debug("Task deleted for project {} with UUID {}", projectUuid, taskUuid);
+        log.info("Task deleted successfully for project {}: {}", projectUuid, taskUuid);
     }
 
     private Task ensureTaskBelongsToProject(String projectUuid, String taskUuid) {

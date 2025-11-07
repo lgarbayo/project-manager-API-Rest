@@ -23,8 +23,9 @@ public class AnalysisController {
 
     @GetMapping("/{projectUuid}/analysis")
     public ProjectAnalysisResponse analyzeProject(@PathVariable String projectUuid) {
-        log.info("GET /project/{}/analysis - Building analysis", projectUuid);
+        log.debug("GET /project/{}/analysis - Building analysis", projectUuid);
         ProjectAnalysis analysis = analysisService.analyzeProject(projectUuid);
+        log.info("Analysis completed successfully for project: {}", projectUuid);
         return restMapper.toProjectAnalysisResponse(analysis);
     }
 }

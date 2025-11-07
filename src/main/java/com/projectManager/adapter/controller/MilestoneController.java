@@ -31,9 +31,9 @@ public class MilestoneController {
 
     @GetMapping
     public List<MilestoneResponse> listMilestones(@PathVariable String projectUuid) {
-        log.info("GET /project/{}/milestone - Retrieving milestones", projectUuid);
+        log.debug("GET /project/{}/milestone - Retrieving milestones", projectUuid);
         List<Milestone> milestones = milestoneService.listMilestonesByProject(projectUuid);
-        log.debug("Milestones retrieved for project {}: {}", projectUuid, milestones.size());
+        log.info("Retrieved {} milestones for project {}", milestones.size(), projectUuid);
         return restMapper.toMilestoneResponseList(milestones);
     }
 
@@ -42,7 +42,7 @@ public class MilestoneController {
             @PathVariable String projectUuid,
             @RequestBody UpsertMilestoneCommand command
     ) {
-        log.info("POST /project/{}/milestone - Creating new milestone", projectUuid);
+        log.debug("POST /project/{}/milestone - Creating new milestone", projectUuid);
         
         if (command == null) {
             log.warn("Attempted to create milestone with null command for project {}", projectUuid);
@@ -51,7 +51,7 @@ public class MilestoneController {
         
         Milestone milestone = restMapper.toMilestone(command, projectUuid);
         Milestone createdMilestone = milestoneService.createMilestone(milestone);
-        log.debug("Milestone created for project {}: {}", projectUuid, createdMilestone.getTitle());
+        log.info("Milestone created successfully for project {}: {}", projectUuid, createdMilestone.getTitle());
         return restMapper.toMilestoneResponse(createdMilestone);
     }
 
@@ -60,9 +60,9 @@ public class MilestoneController {
             @PathVariable String projectUuid,
             @PathVariable String milestoneUuid
     ) {
-        log.info("GET /project/{}/milestone/{} - Retrieving milestone", projectUuid, milestoneUuid);
+        log.debug("GET /project/{}/milestone/{} - Retrieving milestone", projectUuid, milestoneUuid);
         Milestone milestone = ensureMilestoneBelongsToProject(projectUuid, milestoneUuid);
-        log.debug("Milestone retrieved for project {}: {}", projectUuid, milestone.getTitle());
+        log.info("Milestone retrieved successfully for project {}: {}", projectUuid, milestone.getTitle());
         return restMapper.toMilestoneResponse(milestone);
     }
 
@@ -72,7 +72,7 @@ public class MilestoneController {
             @PathVariable String milestoneUuid,
             @RequestBody UpsertMilestoneCommand command
     ) {
-        log.info("PUT /project/{}/milestone/{} - Updating milestone", projectUuid, milestoneUuid);
+        log.debug("PUT /project/{}/milestone/{} - Updating milestone", projectUuid, milestoneUuid);
         
         if (command == null) {
             log.warn("Attempted to update milestone with null command for project {}", projectUuid);
@@ -82,7 +82,7 @@ public class MilestoneController {
         ensureMilestoneBelongsToProject(projectUuid, milestoneUuid);
         Milestone milestone = restMapper.toMilestone(command, projectUuid);
         Milestone updatedMilestone = milestoneService.updateMilestone(milestoneUuid, milestone);
-        log.debug("Milestone updated for project {}: {}", projectUuid, updatedMilestone.getTitle());
+        log.info("Milestone updated successfully for project {}: {}", projectUuid, updatedMilestone.getTitle());
         return restMapper.toMilestoneResponse(updatedMilestone);
     }
 
@@ -91,10 +91,10 @@ public class MilestoneController {
             @PathVariable String projectUuid,
             @PathVariable String milestoneUuid
     ) {
-        log.info("DELETE /project/{}/milestone/{} - Deleting milestone", projectUuid, milestoneUuid);
+        log.debug("DELETE /project/{}/milestone/{} - Deleting milestone", projectUuid, milestoneUuid);
         ensureMilestoneBelongsToProject(projectUuid, milestoneUuid);
         milestoneService.deleteMilestone(milestoneUuid);
-        log.debug("Milestone deleted for project {} with UUID {}", projectUuid, milestoneUuid);
+        log.info("Milestone deleted successfully for project {}: {}", projectUuid, milestoneUuid);
     }
 
     private Milestone ensureMilestoneBelongsToProject(String projectUuid, String milestoneUuid) {

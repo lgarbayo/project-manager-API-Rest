@@ -24,6 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class AnalysisServiceImpl implements AnalysisService {
     private final ProjectFacade projectFacade;
+    private final AnalysisRepository analysisRepository;
 
     @Override
     public ProjectAnalysis analyzeProject(String projectUuid) {
@@ -79,8 +80,12 @@ public class AnalysisServiceImpl implements AnalysisService {
                 .collect(Collectors.toList());
 
         ProjectAnalysis analysis = new ProjectAnalysis(projectCoreData, milestoneAnalyses);
-        log.debug("Project analysis generated for {} with {} milestones.", projectCoreData.getTitle(), milestoneAnalyses.size());
-        return analysis;
+        
+        // save analysis to repository
+        ProjectAnalysis savedAnalysis = analysisRepository.save(analysis);
+        log.debug("Project analysis generated and saved for {} with {} milestones.", projectCoreData.getTitle(), milestoneAnalyses.size());
+        
+        return savedAnalysis;
     }
 
     private Milestone resolveTargetMilestone(List<Milestone> sortedMilestones, Task task) {

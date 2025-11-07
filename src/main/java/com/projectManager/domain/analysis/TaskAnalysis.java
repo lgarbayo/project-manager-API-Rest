@@ -11,6 +11,6 @@ import lombok.NonNull;
 public class TaskAnalysis {
     @NonNull private String taskUuid;
     @NonNull private String taskTitle;
-    private double initialCompletion;
-    private double endCompletion;
+    private double initialCompletion; // 0-1 -> percentage
+    private double endCompletion; // 0-1 -> percentage
 }

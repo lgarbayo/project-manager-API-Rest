@@ -1,4 +1,4 @@
-package com.projectManager.domain.task;
+package com.projectManager.domain.project.task;
 
 import java.util.List;
 import java.util.Optional;

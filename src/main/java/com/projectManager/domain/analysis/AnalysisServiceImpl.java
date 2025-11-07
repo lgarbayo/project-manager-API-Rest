@@ -9,13 +9,11 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
-import com.projectManager.domain.dateType.DateType;
-import com.projectManager.domain.milestone.Milestone;
-import com.projectManager.domain.milestone.MilestoneService;
-import com.projectManager.domain.project.Project;
-import com.projectManager.domain.project.ProjectService;
-import com.projectManager.domain.task.Task;
-import com.projectManager.domain.task.TaskService;
+import com.projectManager.core.dateType.DateType;
+import com.projectManager.core.project.ProjectCoreData;
+import com.projectManager.domain.facade.ProjectFacade;
+import com.projectManager.domain.project.milestone.Milestone;
+import com.projectManager.domain.project.task.Task;
 import com.projectManager.exception.InvalidArgumentException;
 
 import lombok.RequiredArgsConstructor;
@@ -25,9 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 public class AnalysisServiceImpl implements AnalysisService {
-    private final ProjectService projectService;
-    private final MilestoneService milestoneService;
-    private final TaskService taskService;
+    private final ProjectFacade projectFacade;
 
     @Override
     public ProjectAnalysis analyzeProject(String projectUuid) {
@@ -37,19 +33,20 @@ public class AnalysisServiceImpl implements AnalysisService {
         }
         
         log.info("Building analysis for project: {}", projectUuid);
-        Project project = projectService.getProject(projectUuid);
+        
+        ProjectCoreData projectCoreData = projectFacade.getProjectCoreData(projectUuid);
 
-        List<Milestone> projectMilestones = milestoneService.listMilestonesByProject(projectUuid)
+        List<Milestone> projectMilestones = projectFacade.getMilestonesByProject(projectUuid)
                 .stream()
                 .sorted(this::compareMilestonesByDate)
                 .collect(Collectors.toList());
 
-        List<Task> projectTasks = taskService.listTasksByProject(projectUuid)
+        List<Task> projectTasks = projectFacade.getTasksByProject(projectUuid)
                 .stream()
                 .sorted(this::compareTasksByStartDate)
                 .collect(Collectors.toList());
 
-        Map<String, ArrayList<TaskAnalysis>> tasksByMilestone = projectMilestones.stream()
+        Map<String, List<TaskAnalysis>> tasksByMilestone = projectMilestones.stream()
                 .collect(Collectors.toMap(
                         Milestone::getUuid,
                         milestone -> new ArrayList<>(),
@@ -66,10 +63,10 @@ public class AnalysisServiceImpl implements AnalysisService {
                 }
             });
         } else if (!projectTasks.isEmpty()) {
-            log.debug("Project {} has tasks but no milestones to associate them with.", project.getTitle());
+            log.debug("Project {} has tasks but no milestones to associate them with.", projectCoreData.getTitle());
         }
 
-        ArrayList<MilestoneAnalysis> milestoneAnalyses = projectMilestones.stream()
+        List<MilestoneAnalysis> milestoneAnalyses = projectMilestones.stream()
                 .map(milestone -> new MilestoneAnalysis(
                         milestone.getUuid(),
                         milestone.getTitle(),
@@ -79,10 +76,10 @@ public class AnalysisServiceImpl implements AnalysisService {
                         0D,
                         tasksByMilestone.get(milestone.getUuid())
                 ))
-                .collect(Collectors.toCollection(ArrayList::new));
+                .collect(Collectors.toList());
 
-        ProjectAnalysis analysis = new ProjectAnalysis(project, milestoneAnalyses);
-        log.debug("Project analysis generated for {} with {} milestones.", project.getTitle(), milestoneAnalyses.size());
+        ProjectAnalysis analysis = new ProjectAnalysis(projectCoreData, milestoneAnalyses);
+        log.debug("Project analysis generated for {} with {} milestones.", projectCoreData.getTitle(), milestoneAnalyses.size());
         return analysis;
     }
 

@@ -1,4 +1,4 @@
-package com.projectManager.domain.milestone;
+package com.projectManager.domain.project.milestone;
 
 import java.util.List;
 import java.util.UUID;

@@ -1,4 +1,4 @@
-package com.projectManager.domain.task;
+package com.projectManager.domain.project.task;
 
 import org.springframework.stereotype.Service;
 

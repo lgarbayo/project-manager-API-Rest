@@ -1,11 +1,11 @@
 package com.projectManager.adapter.controller.response;
 
-import com.projectManager.domain.dateType.DateType;
+import com.projectManager.core.dateType.DateType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -17,5 +17,5 @@ public class MilestoneAnalysisResponse {
     private DateType endDate;
     private double initialCompletion;
     private double endCompletion;
-    private ArrayList<TaskAnalysisResponse> taskList;
+    private List<TaskAnalysisResponse> taskList;
 }

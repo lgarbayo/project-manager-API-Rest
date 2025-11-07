@@ -1,4 +1,4 @@
-package com.projectManager.domain.milestone;
+package com.projectManager.domain.project.milestone;
 
 import org.springframework.stereotype.Service;
 

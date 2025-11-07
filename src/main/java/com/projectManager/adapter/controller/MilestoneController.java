@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.projectManager.adapter.controller.command.UpsertMilestoneCommand;
 import com.projectManager.adapter.controller.mapper.RestMapper;
 import com.projectManager.adapter.controller.response.MilestoneResponse;
-import com.projectManager.domain.milestone.Milestone;
-import com.projectManager.domain.milestone.MilestoneService;
+import com.projectManager.domain.project.milestone.Milestone;
+import com.projectManager.domain.project.milestone.MilestoneService;
 import com.projectManager.exception.InvalidArgumentException;
 
 import lombok.RequiredArgsConstructor;

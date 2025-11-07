@@ -1,4 +1,4 @@
-package com.projectManager.domain.task;
+package com.projectManager.domain.project.task;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

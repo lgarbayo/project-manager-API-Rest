@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.projectManager.adapter.controller.command.UpsertTaskCommand;
 import com.projectManager.adapter.controller.mapper.RestMapper;
 import com.projectManager.adapter.controller.response.TaskResponse;
-import com.projectManager.domain.task.Task;
-import com.projectManager.domain.task.TaskService;
+import com.projectManager.domain.project.task.Task;
+import com.projectManager.domain.project.task.TaskService;
 import com.projectManager.exception.InvalidArgumentException;
 
 import lombok.RequiredArgsConstructor;

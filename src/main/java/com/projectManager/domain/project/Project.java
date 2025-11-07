@@ -1,7 +1,7 @@
 package com.projectManager.domain.project;
 
 
-import com.projectManager.domain.dateType.DateType;
+import com.projectManager.core.dateType.DateType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

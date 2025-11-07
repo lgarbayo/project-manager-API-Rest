@@ -2,10 +2,13 @@ package com.projectManager.domain.facade;
 
 import org.springframework.stereotype.Component;
 
-import com.projectManager.domain.milestone.Milestone;
-import com.projectManager.domain.milestone.MilestoneService;
-import com.projectManager.domain.task.Task;
-import com.projectManager.domain.task.TaskService;
+import com.projectManager.core.project.ProjectCoreData;
+import com.projectManager.domain.project.milestone.Milestone;
+import com.projectManager.domain.project.milestone.MilestoneService;
+import com.projectManager.domain.project.Project;
+import com.projectManager.domain.project.ProjectService;
+import com.projectManager.domain.project.task.Task;
+import com.projectManager.domain.project.task.TaskService;
 import com.projectManager.exception.ConflictException;
 
 import lombok.RequiredArgsConstructor;
@@ -18,6 +21,7 @@ import java.util.List;
 @Slf4j
 public class ProjectFacadeImpl implements ProjectFacade {
     
+    private final ProjectService projectService;
     private final MilestoneService milestoneService;
     private final TaskService taskService;
     
@@ -43,5 +47,35 @@ public class ProjectFacadeImpl implements ProjectFacade {
         }
         
         log.debug("Project {} has no dependencies, safe to delete", projectUuid);
+    }
+
+    @Override
+    public ProjectCoreData getProjectCoreData(String projectUuid) {
+        log.debug("Getting project core data for: {}", projectUuid);
+        Project project = projectService.getProject(projectUuid);
+        return mapToProjectCoreData(project);
+    }
+
+    @Override
+    public List<Milestone> getMilestonesByProject(String projectUuid) {
+        log.debug("Getting milestones for project: {}", projectUuid);
+        return milestoneService.listMilestonesByProject(projectUuid);
+    }
+
+    @Override
+    public List<Task> getTasksByProject(String projectUuid) {
+        log.debug("Getting tasks for project: {}", projectUuid);
+        return taskService.listTasksByProject(projectUuid);
+    }
+
+    private ProjectCoreData mapToProjectCoreData(Project project) {
+        return new ProjectCoreData(
+            project.getUuid(),
+            project.getTitle(),
+            project.getDescription(),
+            project.getStartDate(),
+            project.getEndDate(),
+            project.getAdditionalFields()
+        );
     }
 }

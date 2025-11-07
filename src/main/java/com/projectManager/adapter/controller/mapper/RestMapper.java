@@ -4,12 +4,13 @@ import com.projectManager.adapter.controller.command.UpsertMilestoneCommand;
 import com.projectManager.adapter.controller.command.UpsertProjectCommand;
 import com.projectManager.adapter.controller.command.UpsertTaskCommand;
 import com.projectManager.adapter.controller.response.*;
+import com.projectManager.core.project.ProjectCoreData;
 import com.projectManager.domain.analysis.MilestoneAnalysis;
 import com.projectManager.domain.analysis.ProjectAnalysis;
 import com.projectManager.domain.analysis.TaskAnalysis;
-import com.projectManager.domain.milestone.Milestone;
+import com.projectManager.domain.project.milestone.Milestone;
 import com.projectManager.domain.project.Project;
-import com.projectManager.domain.task.Task;
+import com.projectManager.domain.project.task.Task;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -28,6 +29,17 @@ public class RestMapper {
             project.getStartDate(),
             project.getEndDate(),
             project.getAdditionalFields()
+        );
+    }
+    
+    public ProjectResponse toProjectResponseFromCoreData(ProjectCoreData projectCoreData) {
+        return new ProjectResponse(
+            projectCoreData.getUuid(),
+            projectCoreData.getTitle(),
+            projectCoreData.getDescription(),
+            projectCoreData.getStartDate(),
+            projectCoreData.getEndDate(),
+            projectCoreData.getAdditionalFields()
         );
     }
     
@@ -106,19 +118,19 @@ public class RestMapper {
     // ===== ANALYSIS MAPPINGS =====
     
     public ProjectAnalysisResponse toProjectAnalysisResponse(ProjectAnalysis analysis) {
-        ProjectResponse projectResponse = toProjectResponse(analysis.getProject());
+        ProjectResponse projectResponse = toProjectResponseFromCoreData(analysis.getProject());
         
         List<MilestoneAnalysisResponse> milestoneResponses = analysis.getMilestoneList().stream()
             .map(this::toMilestoneAnalysisResponse)
-            .collect(Collectors.toCollection(() -> new java.util.ArrayList<>()));
+            .collect(Collectors.toList());
         
-        return new ProjectAnalysisResponse(projectResponse, new java.util.ArrayList<>(milestoneResponses));
+        return new ProjectAnalysisResponse(projectResponse, milestoneResponses);
     }
     
     public MilestoneAnalysisResponse toMilestoneAnalysisResponse(MilestoneAnalysis analysis) {
         List<TaskAnalysisResponse> taskResponses = analysis.getTaskList().stream()
             .map(this::toTaskAnalysisResponse)
-            .collect(Collectors.toCollection(() -> new java.util.ArrayList<>()));
+            .collect(Collectors.toList());
         
         return new MilestoneAnalysisResponse(
             analysis.getMilestoneUuid(),
@@ -127,7 +139,7 @@ public class RestMapper {
             analysis.getEndDate(),
             analysis.getInitialCompletion(),
             analysis.getEndCompletion(),
-            new java.util.ArrayList<>(taskResponses)
+            taskResponses
         );
     }
     

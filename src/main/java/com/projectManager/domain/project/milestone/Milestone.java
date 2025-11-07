@@ -1,17 +1,18 @@
-package com.projectManager.adapter.controller.response;
+package com.projectManager.domain.project.milestone;
 
 import com.projectManager.core.dateType.DateType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class MilestoneResponse {
+public class Milestone {
     private String uuid;
     private String projectUuid;
-    private String title;
+    @NonNull private String title;
+    @NonNull private DateType date;
     private String description;
-    private DateType date;
 }

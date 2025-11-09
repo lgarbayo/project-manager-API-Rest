@@ -12,8 +12,8 @@ import org.springframework.stereotype.Service;
 import com.projectManager.core.dateType.DateType;
 import com.projectManager.core.project.ProjectCoreData;
 import com.projectManager.domain.facade.ProjectFacade;
-import com.projectManager.domain.project.milestone.Milestone;
-import com.projectManager.domain.project.task.Task;
+import com.projectManager.domain.project.Milestone;
+import com.projectManager.domain.project.Task;
 import com.projectManager.exception.InvalidArgumentException;
 
 import lombok.RequiredArgsConstructor;

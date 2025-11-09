@@ -11,8 +11,13 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Embeddable
+@Entity
+@Table(name = "MILESTONE_ANALYSIS")
 public class MilestoneAnalysisEntity { 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    
     @Column(name = "milestone_uuid", nullable = false)
     private String milestoneUuid;
     
@@ -31,7 +36,10 @@ public class MilestoneAnalysisEntity {
     @Column(name = "end_completion")
     private Double endCompletion;
     
-    @ElementCollection
-    @CollectionTable(name = "task_analyses", joinColumns = @JoinColumn(name = "milestone_uuid"))
+    @ManyToOne
+    @JoinColumn(name = "project_analysis_id", nullable = false)
+    private ProjectAnalysisEntity projectAnalysis;
+    
+    @OneToMany(mappedBy = "milestoneAnalysis", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TaskAnalysisEntity> taskAnalyses;
 }

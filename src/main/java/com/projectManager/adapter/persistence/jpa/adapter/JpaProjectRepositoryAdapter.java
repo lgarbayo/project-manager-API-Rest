@@ -2,8 +2,8 @@ package com.projectManager.adapter.persistence.jpa.adapter;
 
 import com.projectManager.domain.project.Project;
 import com.projectManager.domain.project.ProjectRepository;
-import com.projectManager.domain.project.milestone.Milestone;
-import com.projectManager.domain.project.task.Task;
+import com.projectManager.domain.project.Milestone;
+import com.projectManager.domain.project.Task;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

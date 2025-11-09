@@ -8,8 +8,13 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Embeddable
+@Entity
+@Table(name = "TASK_ANALYSIS")
 public class TaskAnalysisEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    
     @Column(name = "task_uuid", nullable = false)
     private String taskUuid;
     
@@ -21,4 +26,8 @@ public class TaskAnalysisEntity {
     
     @Column(name = "end_completion")
     private Double endCompletion;
+    
+    @ManyToOne
+    @JoinColumn(name = "milestone_analysis_id", nullable = false)
+    private MilestoneAnalysisEntity milestoneAnalysis;
 }

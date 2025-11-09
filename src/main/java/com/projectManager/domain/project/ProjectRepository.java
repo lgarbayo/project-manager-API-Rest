@@ -1,8 +1,5 @@
 package com.projectManager.domain.project;
 
-import com.projectManager.domain.project.milestone.Milestone;
-import com.projectManager.domain.project.task.Task;
-
 import java.util.List;
 import java.util.Optional;
 

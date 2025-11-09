@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.projectManager.adapter.controller.command.UpsertTaskCommand;
 import com.projectManager.adapter.controller.mapper.RestMapper;
 import com.projectManager.adapter.controller.response.TaskResponse;
-import com.projectManager.domain.project.task.Task;
-import com.projectManager.domain.project.task.TaskService;
+import com.projectManager.domain.project.Task;
+import com.projectManager.domain.project.ProjectService;
 import com.projectManager.exception.InvalidArgumentException;
 
 import lombok.RequiredArgsConstructor;
@@ -26,13 +26,13 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 public class TaskController {
-    private final TaskService taskService;
+    private final ProjectService projectService;
     private final RestMapper restMapper;
 
     @GetMapping
     public List<TaskResponse> listTasks(@PathVariable String projectUuid) {
         log.debug("GET /project/{}/task - Retrieving tasks", projectUuid);
-        List<Task> tasks = taskService.listTasksByProject(projectUuid);
+        List<Task> tasks = projectService.listTasks(projectUuid);
         log.info("Retrieved {} tasks for project {}", tasks.size(), projectUuid);
         return restMapper.toTaskResponseList(tasks);
     }
@@ -50,7 +50,7 @@ public class TaskController {
         }
         
         Task task = restMapper.toTask(command, projectUuid);
-        Task createdTask = taskService.createTask(task);
+        Task createdTask = projectService.addTaskToProject(projectUuid, task);
         log.info("Task created successfully for project {}: {}", projectUuid, createdTask.getTitle());
         return restMapper.toTaskResponse(createdTask);
     }
@@ -61,7 +61,7 @@ public class TaskController {
             @PathVariable String taskUuid
     ) {
         log.debug("GET /project/{}/task/{} - Retrieving task", projectUuid, taskUuid);
-        Task task = ensureTaskBelongsToProject(projectUuid, taskUuid);
+        Task task = projectService.getTask(projectUuid, taskUuid);
         log.info("Task retrieved successfully for project {}: {}", projectUuid, task.getTitle());
         return restMapper.toTaskResponse(task);
     }
@@ -79,9 +79,8 @@ public class TaskController {
             throw new InvalidArgumentException("Task data is required");
         }
         
-        ensureTaskBelongsToProject(projectUuid, taskUuid);
         Task task = restMapper.toTask(command, projectUuid);
-        Task updatedTask = taskService.updateTask(taskUuid, task);
+        Task updatedTask = projectService.updateTask(projectUuid, taskUuid, task);
         log.info("Task updated successfully for project {}: {}", projectUuid, updatedTask.getTitle());
         return restMapper.toTaskResponse(updatedTask);
     }
@@ -92,17 +91,7 @@ public class TaskController {
             @PathVariable String taskUuid
     ) {
         log.debug("DELETE /project/{}/task/{} - Deleting task", projectUuid, taskUuid);
-        ensureTaskBelongsToProject(projectUuid, taskUuid);
-        taskService.deleteTask(taskUuid);
+        projectService.deleteTask(projectUuid, taskUuid);
         log.info("Task deleted successfully for project {}: {}", projectUuid, taskUuid);
-    }
-
-    private Task ensureTaskBelongsToProject(String projectUuid, String taskUuid) {
-        Task task = taskService.getTask(taskUuid);
-        if (task.getProjectUuid() == null || !projectUuid.equals(task.getProjectUuid())) {
-            log.warn("Task {} does not belong to project {}", taskUuid, projectUuid);
-            throw new InvalidArgumentException("Task does not belong to the specified project");
-        }
-        return task;
     }
 }

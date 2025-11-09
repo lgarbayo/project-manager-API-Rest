@@ -3,12 +3,10 @@ package com.projectManager.domain.facade;
 import org.springframework.stereotype.Component;
 
 import com.projectManager.core.project.ProjectCoreData;
-import com.projectManager.domain.project.milestone.Milestone;
-import com.projectManager.domain.project.milestone.MilestoneService;
+import com.projectManager.domain.project.Milestone;
 import com.projectManager.domain.project.Project;
 import com.projectManager.domain.project.ProjectService;
-import com.projectManager.domain.project.task.Task;
-import com.projectManager.domain.project.task.TaskService;
+import com.projectManager.domain.project.Task;
 import com.projectManager.exception.ConflictException;
 
 import lombok.RequiredArgsConstructor;
@@ -22,8 +20,6 @@ import java.util.List;
 public class ProjectFacadeImpl implements ProjectFacade {
     
     private final ProjectService projectService;
-    private final MilestoneService milestoneService;
-    private final TaskService taskService;
     
     @Override
     public void checkDependencies(String projectUuid) {
@@ -34,13 +30,13 @@ public class ProjectFacadeImpl implements ProjectFacade {
         
         log.debug("Checking dependencies for project: {}", projectUuid);
         
-        List<Milestone> milestones = milestoneService.listMilestonesByProject(projectUuid);
+        List<Milestone> milestones = projectService.listMilestones(projectUuid);
         if (!milestones.isEmpty()) {
             log.warn("Cannot delete project {} - has {} associated milestones", projectUuid, milestones.size());
             throw new ConflictException("Cannot delete project: project has " + milestones.size() + " associated milestones");
         }
 
-        List<Task> tasks = taskService.listTasksByProject(projectUuid);
+        List<Task> tasks = projectService.listTasks(projectUuid);
         if (!tasks.isEmpty()) {
             log.warn("Cannot delete project {} - has {} associated tasks", projectUuid, tasks.size());
             throw new ConflictException("Cannot delete project: project has " + tasks.size() + " associated tasks");
@@ -59,13 +55,13 @@ public class ProjectFacadeImpl implements ProjectFacade {
     @Override
     public List<Milestone> getMilestonesByProject(String projectUuid) {
         log.debug("Getting milestones for project: {}", projectUuid);
-        return milestoneService.listMilestonesByProject(projectUuid);
+        return projectService.listMilestones(projectUuid);
     }
 
     @Override
     public List<Task> getTasksByProject(String projectUuid) {
         log.debug("Getting tasks for project: {}", projectUuid);
-        return taskService.listTasksByProject(projectUuid);
+        return projectService.listTasks(projectUuid);
     }
 
     private ProjectCoreData mapToProjectCoreData(Project project) {

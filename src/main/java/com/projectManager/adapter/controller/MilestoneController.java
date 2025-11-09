@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.projectManager.adapter.controller.command.UpsertMilestoneCommand;
 import com.projectManager.adapter.controller.mapper.RestMapper;
 import com.projectManager.adapter.controller.response.MilestoneResponse;
-import com.projectManager.domain.project.milestone.Milestone;
-import com.projectManager.domain.project.milestone.MilestoneService;
+import com.projectManager.domain.project.Milestone;
+import com.projectManager.domain.project.ProjectService;
 import com.projectManager.exception.InvalidArgumentException;
 
 import lombok.RequiredArgsConstructor;
@@ -26,13 +26,13 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 public class MilestoneController {
-    private final MilestoneService milestoneService;
+    private final ProjectService projectService;
     private final RestMapper restMapper;
 
     @GetMapping
     public List<MilestoneResponse> listMilestones(@PathVariable String projectUuid) {
         log.debug("GET /project/{}/milestone - Retrieving milestones", projectUuid);
-        List<Milestone> milestones = milestoneService.listMilestonesByProject(projectUuid);
+        List<Milestone> milestones = projectService.listMilestones(projectUuid);
         log.info("Retrieved {} milestones for project {}", milestones.size(), projectUuid);
         return restMapper.toMilestoneResponseList(milestones);
     }
@@ -50,7 +50,7 @@ public class MilestoneController {
         }
         
         Milestone milestone = restMapper.toMilestone(command, projectUuid);
-        Milestone createdMilestone = milestoneService.createMilestone(milestone);
+        Milestone createdMilestone = projectService.addMilestoneToProject(projectUuid, milestone);
         log.info("Milestone created successfully for project {}: {}", projectUuid, createdMilestone.getTitle());
         return restMapper.toMilestoneResponse(createdMilestone);
     }
@@ -61,7 +61,7 @@ public class MilestoneController {
             @PathVariable String milestoneUuid
     ) {
         log.debug("GET /project/{}/milestone/{} - Retrieving milestone", projectUuid, milestoneUuid);
-        Milestone milestone = ensureMilestoneBelongsToProject(projectUuid, milestoneUuid);
+        Milestone milestone = projectService.getMilestone(projectUuid, milestoneUuid);
         log.info("Milestone retrieved successfully for project {}: {}", projectUuid, milestone.getTitle());
         return restMapper.toMilestoneResponse(milestone);
     }
@@ -79,9 +79,8 @@ public class MilestoneController {
             throw new InvalidArgumentException("Milestone data is required");
         }
         
-        ensureMilestoneBelongsToProject(projectUuid, milestoneUuid);
         Milestone milestone = restMapper.toMilestone(command, projectUuid);
-        Milestone updatedMilestone = milestoneService.updateMilestone(milestoneUuid, milestone);
+        Milestone updatedMilestone = projectService.updateMilestone(projectUuid, milestoneUuid, milestone);
         log.info("Milestone updated successfully for project {}: {}", projectUuid, updatedMilestone.getTitle());
         return restMapper.toMilestoneResponse(updatedMilestone);
     }
@@ -92,17 +91,7 @@ public class MilestoneController {
             @PathVariable String milestoneUuid
     ) {
         log.debug("DELETE /project/{}/milestone/{} - Deleting milestone", projectUuid, milestoneUuid);
-        ensureMilestoneBelongsToProject(projectUuid, milestoneUuid);
-        milestoneService.deleteMilestone(milestoneUuid);
+        projectService.deleteMilestone(projectUuid, milestoneUuid);
         log.info("Milestone deleted successfully for project {}: {}", projectUuid, milestoneUuid);
-    }
-
-    private Milestone ensureMilestoneBelongsToProject(String projectUuid, String milestoneUuid) {
-        Milestone milestone = milestoneService.getMilestone(milestoneUuid);
-        if (milestone.getProjectUuid() == null || !projectUuid.equals(milestone.getProjectUuid())) {
-            log.warn("Milestone {} does not belong to project {}", milestoneUuid, projectUuid);
-            throw new InvalidArgumentException("Milestone does not belong to the specified project");
-        }
-        return milestone;
     }
 }

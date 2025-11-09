@@ -1,8 +1,8 @@
 package com.projectManager.domain.facade;
 
 import com.projectManager.core.project.ProjectCoreData;
-import com.projectManager.domain.project.milestone.Milestone;
-import com.projectManager.domain.project.task.Task;
+import com.projectManager.domain.project.Milestone;
+import com.projectManager.domain.project.Task;
 
 import java.util.List;
 

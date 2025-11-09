@@ -2,7 +2,7 @@ package com.projectManager.adapter.persistence.mapper;
 
 import com.projectManager.adapter.persistence.entity.TaskEntity;
 import com.projectManager.core.dateType.DateType;
-import com.projectManager.domain.project.task.Task;
+import com.projectManager.domain.project.Task;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;

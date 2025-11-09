@@ -40,7 +40,6 @@ public class ProjectAnalysisEntity {
     @Column(name = "additional_field_value")
     private Map<String, String> additionalFields;
     
-    @ElementCollection
-    @CollectionTable(name = "milestone_analyses", joinColumns = @JoinColumn(name = "project_uuid"))
+    @OneToMany(mappedBy = "projectAnalysis", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MilestoneAnalysisEntity> milestoneAnalyses;
 }

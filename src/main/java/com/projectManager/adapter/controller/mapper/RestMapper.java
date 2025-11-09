@@ -8,9 +8,9 @@ import com.projectManager.core.project.ProjectCoreData;
 import com.projectManager.domain.analysis.MilestoneAnalysis;
 import com.projectManager.domain.analysis.ProjectAnalysis;
 import com.projectManager.domain.analysis.TaskAnalysis;
-import com.projectManager.domain.project.milestone.Milestone;
+import com.projectManager.domain.project.Milestone;
 import com.projectManager.domain.project.Project;
-import com.projectManager.domain.project.task.Task;
+import com.projectManager.domain.project.Task;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -18,9 +18,9 @@ import java.util.stream.Collectors;
 
 @Component
 public class RestMapper {
-    
-    // ===== PROJECT MAPPINGS =====
-    
+
+    // project mappings
+
     public ProjectResponse toProjectResponse(Project project) {
         return new ProjectResponse(
             project.getUuid(),
@@ -58,9 +58,9 @@ public class RestMapper {
         project.setAdditionalFields(command.getAdditionalFields());
         return project;
     }
-    
-    // ===== MILESTONE MAPPINGS =====
-    
+
+    // milestone mappings
+
     public MilestoneResponse toMilestoneResponse(Milestone milestone) {
         return new MilestoneResponse(
             milestone.getUuid(),
@@ -85,9 +85,9 @@ public class RestMapper {
         milestone.setDate(command.getDate());
         return milestone;
     }
-    
-    // ===== TASK MAPPINGS =====
-    
+
+    // task mappings
+
     public TaskResponse toTaskResponse(Task task) {
         return new TaskResponse(
             task.getUuid(),

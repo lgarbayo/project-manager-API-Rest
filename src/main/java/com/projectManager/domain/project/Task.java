@@ -1,4 +1,4 @@
-package com.projectManager.domain.project.milestone;
+package com.projectManager.domain.project;
 
 import com.projectManager.core.dateType.DateType;
 import lombok.AllArgsConstructor;
@@ -9,10 +9,11 @@ import lombok.NonNull;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Milestone {
+public class Task {
     private String uuid;
     private String projectUuid;
     @NonNull private String title;
-    @NonNull private DateType date;
     private String description;
+    private int durationWeeks;
+    @NonNull private DateType startDate;
 }

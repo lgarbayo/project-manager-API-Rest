@@ -2,7 +2,7 @@ package com.projectManager.adapter.persistence.mapper;
 
 import com.projectManager.adapter.persistence.entity.MilestoneEntity;
 import com.projectManager.core.dateType.DateType;
-import com.projectManager.domain.project.milestone.Milestone;
+import com.projectManager.domain.project.Milestone;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;

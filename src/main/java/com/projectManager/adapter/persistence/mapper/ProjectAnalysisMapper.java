@@ -52,7 +52,10 @@ public class ProjectAnalysisMapper {
         // convert dateType dates into localDateTime
         entity.setStartDate(dateTypeToLocalDate(project.getStartDate()).atStartOfDay());
         entity.setEndDate(dateTypeToLocalDate(project.getEndDate()).atStartOfDay());
-        entity.setAdditionalFields(project.getAdditionalFields());
+
+        // fixed here the error: additionalFields was not being initialized properly
+        entity.setAdditionalFields(project.getAdditionalFields() != null ? 
+            new java.util.HashMap<>(project.getAdditionalFields()) : new java.util.HashMap<>());
         
         List<MilestoneAnalysisEntity> milestoneEntities = analysis.getMilestoneList().stream()
                 .map(this::milestoneAnalysisDomainToEntity)

@@ -27,7 +27,7 @@ services:
       postgres:
         condition: service_healthy
     ports:
-      - "8081:8080"
+      - "8081:8082"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/manager
       SPRING_DATASOURCE_USERNAME: luis.gf

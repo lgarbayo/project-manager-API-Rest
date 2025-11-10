@@ -4,6 +4,7 @@ import com.projectManager.domain.project.Project;
 import com.projectManager.domain.project.ProjectRepository;
 import com.projectManager.domain.project.Milestone;
 import com.projectManager.domain.project.Task;
+import com.projectManager.exception.ResourceNotFoundException;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -44,6 +45,10 @@ public class JpaProjectRepositoryAdapter implements ProjectRepository {
 
     @Override
     public Optional<Project> findById(String id) {
+        if (id == null) {
+            log.warn("Project ID is null");
+            return Optional.empty();
+        }
         log.debug("Finding project by id: {}", id);
         Optional<Project> project = projectJpaRepository.findById(id).map(projectMapper::toDomain);
         if (project.isPresent()) {
@@ -58,6 +63,10 @@ public class JpaProjectRepositoryAdapter implements ProjectRepository {
     public Project save(Project project) {
         log.debug("Saving project: {} ({})", project.getTitle(), project.getUuid());
         ProjectEntity entity = projectMapper.toEntity(project);
+        if (entity == null) {
+            log.error("Failed to convert project to entity");
+            throw new IllegalArgumentException("Milestone entity conversion failed");
+        }
         ProjectEntity saved = projectJpaRepository.save(entity);
         Project savedProject = projectMapper.toDomain(saved);
         log.info("Project saved successfully: {}", savedProject.getTitle());
@@ -67,23 +76,31 @@ public class JpaProjectRepositoryAdapter implements ProjectRepository {
     @Override
     public Project update(Project project) {
         log.debug("Updating project: {} ({})", project.getTitle(), project.getUuid());
-        if (!projectJpaRepository.existsById(project.getUuid())) {
-            log.error("Attempted to update non-existent project: {}", project.getUuid());
-            throw new RuntimeException("Project not found with id: " + project.getUuid());
+        String projectUuid = project.getUuid();
+        if (projectUuid == null) {
+            log.error("Project UUID is null");
+            throw new IllegalArgumentException("Project UUID cannot be null");
+        }
+        if (!projectJpaRepository.existsById(projectUuid)) {
+            log.error("Attempted to update non-existent project: {}", projectUuid);
+            throw new ResourceNotFoundException("Project not found with id: " + projectUuid);
         }
         log.info("Project updated successfully: {}", project.getTitle());
         return save(project);
     }
 
-    @Override
+        @Override
     public void deleteById(String id) {
         log.debug("Deleting project with id: {}", id);
+        if (id == null) {
+            log.error("Project ID is null");
+            throw new IllegalArgumentException("Project ID cannot be null");
+        }
         if (projectJpaRepository.existsById(id)) {
             projectJpaRepository.deleteById(id);
             log.info("Project deleted successfully: {}", id);
         } else {
-            log.error("Attempted to delete non-existent project: {}", id);
-            throw new RuntimeException("Project not found with id: " + id);
+            log.warn("Attempted to delete non-existent project: {}", id);
         }
     }
 
@@ -100,6 +117,10 @@ public class JpaProjectRepositoryAdapter implements ProjectRepository {
     public Task saveTask(Task task) {
         log.debug("Saving task: {} for project: {}", task.getTitle(), task.getProjectUuid());
         TaskEntity entity = taskMapper.toEntity(task);
+        if (entity == null) {
+            log.error("Failed to convert task to entity");
+            throw new IllegalArgumentException("Task entity conversion failed");
+        }
         TaskEntity saved = taskJpaRepository.save(entity);
         Task savedTask = taskMapper.toDomain(saved);
         log.info("Task saved successfully: {}", savedTask.getTitle());
@@ -109,6 +130,10 @@ public class JpaProjectRepositoryAdapter implements ProjectRepository {
     @Override
     public Optional<Task> findTaskById(String taskId) {
         log.debug("Finding task by id: {}", taskId);
+        if (taskId == null) {
+            log.error("Task ID is null");
+            throw new IllegalArgumentException("Task ID cannot be null");
+        }
         Optional<Task> task = taskJpaRepository.findById(taskId).map(taskMapper::toDomain);
         if (task.isPresent()) {
             log.debug("Task found: {}", task.get().getTitle());
@@ -121,9 +146,14 @@ public class JpaProjectRepositoryAdapter implements ProjectRepository {
     @Override
     public Task updateTask(Task task) {
         log.debug("Updating task: {} ({})", task.getTitle(), task.getUuid());
-        if (!taskJpaRepository.existsById(task.getUuid())) {
-            log.error("Attempted to update non-existent task: {}", task.getUuid());
-            throw new RuntimeException("Task not found with id: " + task.getUuid());
+        String taskUuid = task.getUuid();
+        if (taskUuid == null) {
+            log.error("Task UUID is null");
+            throw new IllegalArgumentException("Task UUID cannot be null");
+        }
+        if (!taskJpaRepository.existsById(taskUuid)) {
+            log.error("Attempted to update non-existent task: {}", taskUuid);
+            throw new ResourceNotFoundException("Task not found with id: " + taskUuid);
         }
         log.info("Task updated successfully: {}", task.getTitle());
         return saveTask(task);
@@ -132,12 +162,16 @@ public class JpaProjectRepositoryAdapter implements ProjectRepository {
     @Override
     public void deleteTaskById(String taskId) {
         log.debug("Deleting task with id: {}", taskId);
+        if (taskId == null) {
+            log.error("Task ID is null");
+            throw new IllegalArgumentException("Task ID cannot be null");
+        }
         if (taskJpaRepository.existsById(taskId)) {
             taskJpaRepository.deleteById(taskId);
             log.info("Task deleted successfully: {}", taskId);
         } else {
             log.error("Attempted to delete non-existent task: {}", taskId);
-            throw new RuntimeException("Task not found with id: " + taskId);
+            throw new ResourceNotFoundException("Task not found with id: " + taskId);
         }
     }
 
@@ -154,6 +188,10 @@ public class JpaProjectRepositoryAdapter implements ProjectRepository {
     public Milestone saveMilestone(Milestone milestone) {
         log.debug("Saving milestone: {} for project: {}", milestone.getTitle(), milestone.getProjectUuid());
         MilestoneEntity entity = milestoneMapper.toEntity(milestone);
+        if (entity == null) {
+            log.error("Failed to convert milestone to entity");
+            throw new IllegalArgumentException("Milestone entity conversion failed");
+        }
         MilestoneEntity saved = milestoneJpaRepository.save(entity);
         Milestone savedMilestone = milestoneMapper.toDomain(saved);
         log.info("Milestone saved successfully: {}", savedMilestone.getTitle());
@@ -163,6 +201,10 @@ public class JpaProjectRepositoryAdapter implements ProjectRepository {
     @Override
     public Optional<Milestone> findMilestoneById(String milestoneId) {
         log.debug("Finding milestone by id: {}", milestoneId);
+        if (milestoneId == null) {
+            log.error("Milestone ID is null");
+            throw new IllegalArgumentException("Milestone ID cannot be null");
+        }
         Optional<Milestone> milestone = milestoneJpaRepository.findById(milestoneId).map(milestoneMapper::toDomain);
         if (milestone.isPresent()) {
             log.debug("Milestone found: {}", milestone.get().getTitle());
@@ -175,9 +217,14 @@ public class JpaProjectRepositoryAdapter implements ProjectRepository {
     @Override
     public Milestone updateMilestone(Milestone milestone) {
         log.debug("Updating milestone: {} ({})", milestone.getTitle(), milestone.getUuid());
-        if (!milestoneJpaRepository.existsById(milestone.getUuid())) {
-            log.error("Attempted to update non-existent milestone: {}", milestone.getUuid());
-            throw new RuntimeException("Milestone not found with id: " + milestone.getUuid());
+        String milestoneUuid = milestone.getUuid();
+        if (milestoneUuid == null) {
+            log.error("Milestone UUID is null");
+            throw new IllegalArgumentException("Milestone UUID cannot be null");
+        }
+        if (!milestoneJpaRepository.existsById(milestoneUuid)) {
+            log.error("Attempted to update non-existent milestone: {}", milestoneUuid);
+            throw new ResourceNotFoundException("Milestone not found with id: " + milestoneUuid);
         }
         log.info("Milestone updated successfully: {}", milestone.getTitle());
         return saveMilestone(milestone);
@@ -186,12 +233,16 @@ public class JpaProjectRepositoryAdapter implements ProjectRepository {
     @Override
     public void deleteMilestoneById(String milestoneId) {
         log.debug("Deleting milestone with id: {}", milestoneId);
+        if (milestoneId == null) {
+            log.error("Milestone ID is null");
+            throw new IllegalArgumentException("Milestone ID cannot be null");
+        }
         if (milestoneJpaRepository.existsById(milestoneId)) {
             milestoneJpaRepository.deleteById(milestoneId);
             log.info("Milestone deleted successfully: {}", milestoneId);
         } else {
             log.error("Attempted to delete non-existent milestone: {}", milestoneId);
-            throw new RuntimeException("Milestone not found with id: " + milestoneId);
+            throw new ResourceNotFoundException("Milestone not found with id: " + milestoneId);
         }
     }
 }

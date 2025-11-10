@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.projectManager.adapter.controller.command.UpsertProjectCommand;
 import com.projectManager.adapter.controller.mapper.RestMapper;
 import com.projectManager.adapter.controller.response.ProjectResponse;
-import com.projectManager.domain.project.ProjectService;
+import com.projectManager.domain.facade.ProjectFacade;
 import com.projectManager.domain.project.Project;
 import com.projectManager.exception.InvalidArgumentException;
 
@@ -27,13 +27,13 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 public class ProjectController {
-    private final ProjectService projectService;
+    private final ProjectFacade projectFacade;
     private final RestMapper restMapper;
     
     @GetMapping
     public List<ProjectResponse> listProjects() {
         log.debug("GET /project - Retrieving all projects");
-        List<Project> projects = projectService.listProjects();
+        List<Project> projects = projectFacade.listProjects();
         log.info("Retrieved {} projects successfully", projects.size());
         return restMapper.toProjectResponseList(projects);
     }
@@ -48,7 +48,7 @@ public class ProjectController {
         }
         
         Project project = restMapper.toProject(command);
-        Project createdProject = projectService.createProject(project);
+        Project createdProject = projectFacade.createProject(project);
         log.info("Project created successfully: {}", createdProject.getTitle());
         return restMapper.toProjectResponse(createdProject);
     }
@@ -56,7 +56,7 @@ public class ProjectController {
     @GetMapping("/{projectUuid}")
     public ProjectResponse getProject(@PathVariable String projectUuid) {
         log.debug("GET /project/{} - Retrieving project", projectUuid);
-        Project project = projectService.getProject(projectUuid);
+        Project project = projectFacade.getProject(projectUuid);
         log.info("Project retrieved successfully: {}", project.getTitle());
         return restMapper.toProjectResponse(project);
     }
@@ -71,7 +71,7 @@ public class ProjectController {
         }
         
         Project project = restMapper.toProject(command);
-        Project updatedProject = projectService.updateProject(projectUuid, project);
+        Project updatedProject = projectFacade.updateProject(projectUuid, project);
         log.info("Project updated successfully: {}", updatedProject.getTitle());
         return restMapper.toProjectResponse(updatedProject);
     }
@@ -79,7 +79,7 @@ public class ProjectController {
     @DeleteMapping("/{projectUuid}")
     public void deleteProject(@PathVariable String projectUuid) {
         log.debug("DELETE /project/{} - Deleting project", projectUuid);
-        projectService.deleteProject(projectUuid);
+        projectFacade.deleteProject(projectUuid);
         log.info("Project deleted successfully: {}", projectUuid);
     }
 }

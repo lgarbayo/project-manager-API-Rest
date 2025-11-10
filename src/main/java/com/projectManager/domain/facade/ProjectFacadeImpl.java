@@ -3,6 +3,8 @@ package com.projectManager.domain.facade;
 import org.springframework.stereotype.Component;
 
 import com.projectManager.core.project.ProjectCoreData;
+import com.projectManager.domain.analysis.AnalysisService;
+import com.projectManager.domain.analysis.ProjectAnalysis;
 import com.projectManager.domain.project.Milestone;
 import com.projectManager.domain.project.Project;
 import com.projectManager.domain.project.ProjectService;
@@ -20,29 +22,98 @@ import java.util.List;
 public class ProjectFacadeImpl implements ProjectFacade {
     
     private final ProjectService projectService;
+    private final AnalysisService analysisService;
     
     @Override
-    public void checkDependencies(String projectUuid) {
-        if (projectUuid == null || projectUuid.trim().isEmpty()) {
-            log.warn("Attempted to check dependencies with null or empty project UUID");
-            throw new ConflictException("Project UUID cannot be null or empty");
-        }
-        
-        log.debug("Checking dependencies for project: {}", projectUuid);
-        
-        List<Milestone> milestones = projectService.listMilestones(projectUuid);
-        if (!milestones.isEmpty()) {
-            log.warn("Cannot delete project {} - has {} associated milestones", projectUuid, milestones.size());
-            throw new ConflictException("Cannot delete project: project has " + milestones.size() + " associated milestones");
-        }
+    public List<Project> listProjects() {
+        log.debug("Listing projects through facade");
+        return projectService.listProjects();
+    }
 
-        List<Task> tasks = projectService.listTasks(projectUuid);
-        if (!tasks.isEmpty()) {
-            log.warn("Cannot delete project {} - has {} associated tasks", projectUuid, tasks.size());
-            throw new ConflictException("Cannot delete project: project has " + tasks.size() + " associated tasks");
-        }
-        
-        log.debug("Project {} has no dependencies, safe to delete", projectUuid);
+    @Override
+    public Project createProject(Project project) {
+        log.debug("Creating project through facade: {}", project != null ? project.getTitle() : "null");
+        return projectService.createProject(project);
+    }
+
+    @Override
+    public Project getProject(String projectUuid) {
+        log.debug("Fetching project through facade: {}", projectUuid);
+        return projectService.getProject(projectUuid);
+    }
+
+    @Override
+    public Project updateProject(String projectUuid, Project project) {
+        log.debug("Updating project through facade: {}", projectUuid);
+        return projectService.updateProject(projectUuid, project);
+    }
+
+    @Override
+    public void deleteProject(String projectUuid) {
+        log.debug("Deleting project through facade: {}", projectUuid);
+        checkBeforeDeletingProject(projectUuid);
+        projectService.deleteProject(projectUuid);
+        log.info("Project {} deleted via facade", projectUuid);
+    }
+
+    @Override
+    public List<Task> getTasksByProject(String projectUuid) {
+        log.debug("Getting tasks for project: {}", projectUuid);
+        return projectService.listTasks(projectUuid);
+    }
+
+    @Override
+    public Task addTaskToProject(String projectUuid, Task task) {
+        log.debug("Adding task to project {} through facade", projectUuid);
+        return projectService.addTaskToProject(projectUuid, task);
+    }
+
+    @Override
+    public Task getTask(String projectUuid, String taskUuid) {
+        log.debug("Getting task {} for project {} through facade", taskUuid, projectUuid);
+        return projectService.getTask(projectUuid, taskUuid);
+    }
+
+    @Override
+    public Task updateTask(String projectUuid, String taskUuid, Task task) {
+        log.debug("Updating task {} for project {} through facade", taskUuid, projectUuid);
+        return projectService.updateTask(projectUuid, taskUuid, task);
+    }
+
+    @Override
+    public void deleteTask(String projectUuid, String taskUuid) {
+        log.debug("Deleting task {} for project {} through facade", taskUuid, projectUuid);
+        projectService.deleteTask(projectUuid, taskUuid);
+    }
+
+    @Override
+    public List<Milestone> getMilestonesByProject(String projectUuid) {
+        log.debug("Getting milestones for project: {}", projectUuid);
+        return projectService.listMilestones(projectUuid);
+    }
+
+    @Override
+    public Milestone addMilestoneToProject(String projectUuid, Milestone milestone) {
+        log.debug("Adding milestone to project {} through facade", projectUuid);
+        return projectService.addMilestoneToProject(projectUuid, milestone);
+    }
+
+    @Override
+    public Milestone getMilestone(String projectUuid, String milestoneUuid) {
+        log.debug("Getting milestone {} for project {} through facade", milestoneUuid, projectUuid);
+        return projectService.getMilestone(projectUuid, milestoneUuid);
+    }
+
+    @Override
+    public Milestone updateMilestone(String projectUuid, String milestoneUuid, Milestone milestone) {
+        log.debug("Updating milestone {} for project {} through facade", milestoneUuid, projectUuid);
+        return projectService.updateMilestone(projectUuid, milestoneUuid, milestone);
+    }
+
+    @Override
+    public void deleteMilestone(String projectUuid, String milestoneUuid) {
+        log.debug("Deleting milestone {} for project {} through facade", milestoneUuid, projectUuid);
+        projectService.deleteMilestone(projectUuid, milestoneUuid);
     }
 
     @Override
@@ -53,15 +124,9 @@ public class ProjectFacadeImpl implements ProjectFacade {
     }
 
     @Override
-    public List<Milestone> getMilestonesByProject(String projectUuid) {
-        log.debug("Getting milestones for project: {}", projectUuid);
-        return projectService.listMilestones(projectUuid);
-    }
-
-    @Override
-    public List<Task> getTasksByProject(String projectUuid) {
-        log.debug("Getting tasks for project: {}", projectUuid);
-        return projectService.listTasks(projectUuid);
+    public ProjectAnalysis analyzeProject(String projectUuid) {
+        log.debug("Analyzing project through facade: {}", projectUuid);
+        return analysisService.analyzeProject(projectUuid);
     }
 
     private ProjectCoreData mapToProjectCoreData(Project project) {
@@ -73,5 +138,28 @@ public class ProjectFacadeImpl implements ProjectFacade {
             project.getEndDate(),
             project.getAdditionalFields()
         );
+    }
+
+    private void checkBeforeDeletingProject(String projectUuid) {
+        if (projectUuid == null || projectUuid.trim().isEmpty()) {
+            log.warn("Attempted to delete project with null or empty UUID");
+            throw new ConflictException("Project UUID cannot be null or empty");
+        }
+
+        log.debug("Checking dependencies before deleting project: {}", projectUuid);
+
+        List<Milestone> milestones = projectService.listMilestones(projectUuid);
+        if (!milestones.isEmpty()) {
+            log.warn("Cannot delete project {} - has {} associated milestones", projectUuid, milestones.size());
+            throw new ConflictException("Cannot delete project: project has " + milestones.size() + " associated milestones");
+        }
+
+        List<Task> tasks = projectService.listTasks(projectUuid);
+        if (!tasks.isEmpty()) {
+            log.warn("Cannot delete project {} - has {} associated tasks", projectUuid, tasks.size());
+            throw new ConflictException("Cannot delete project: project has " + tasks.size() + " associated tasks");
+        }
+
+        log.debug("Project {} has no dependencies, safe to delete", projectUuid);
     }
 }

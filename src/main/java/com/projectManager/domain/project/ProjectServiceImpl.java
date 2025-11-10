@@ -64,9 +64,6 @@ public class ProjectServiceImpl implements ProjectService {
         log.debug("Attempting to delete project with ID: {}", uuid);
         validateUuid(uuid);
         Project project = getProject(uuid);
-        
-        checkProjectDependencies(uuid);
-        
         log.debug("Found project for deletion: {}", project);
         try {
             projectRepository.deleteById(uuid);
@@ -311,21 +308,4 @@ public class ProjectServiceImpl implements ProjectService {
         }
     }
     
-    private void checkProjectDependencies(String projectUuid) {
-        log.debug("Checking dependencies for project: {}", projectUuid);
-
-        List<Milestone> milestones = projectRepository.findMilestonesByProjectUuid(projectUuid);
-        if (!milestones.isEmpty()) {
-            log.warn("Cannot delete project {} - has {} associated milestones", projectUuid, milestones.size());
-            throw new ConflictException("Cannot delete project: project has " + milestones.size() + " associated milestones");
-        }
-
-        List<Task> tasks = projectRepository.findTasksByProjectUuid(projectUuid);
-        if (!tasks.isEmpty()) {
-            log.warn("Cannot delete project {} - has {} associated tasks", projectUuid, tasks.size());
-            throw new ConflictException("Cannot delete project: project has " + tasks.size() + " associated tasks");
-        }
-        
-        log.debug("Project {} has no dependencies, safe to delete", projectUuid);
-    }
 }

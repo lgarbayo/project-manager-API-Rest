@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.projectManager.adapter.controller.command.UpsertMilestoneCommand;
 import com.projectManager.adapter.controller.mapper.RestMapper;
 import com.projectManager.adapter.controller.response.MilestoneResponse;
+import com.projectManager.domain.facade.ProjectFacade;
 import com.projectManager.domain.project.Milestone;
-import com.projectManager.domain.project.ProjectService;
 import com.projectManager.exception.InvalidArgumentException;
 
 import lombok.RequiredArgsConstructor;
@@ -26,13 +26,13 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 public class MilestoneController {
-    private final ProjectService projectService;
+    private final ProjectFacade projectFacade;
     private final RestMapper restMapper;
 
     @GetMapping
     public List<MilestoneResponse> listMilestones(@PathVariable String projectUuid) {
         log.debug("GET /project/{}/milestone - Retrieving milestones", projectUuid);
-        List<Milestone> milestones = projectService.listMilestones(projectUuid);
+        List<Milestone> milestones = projectFacade.getMilestonesByProject(projectUuid);
         log.info("Retrieved {} milestones for project {}", milestones.size(), projectUuid);
         return restMapper.toMilestoneResponseList(milestones);
     }
@@ -50,7 +50,7 @@ public class MilestoneController {
         }
         
         Milestone milestone = restMapper.toMilestone(command, projectUuid);
-        Milestone createdMilestone = projectService.addMilestoneToProject(projectUuid, milestone);
+        Milestone createdMilestone = projectFacade.addMilestoneToProject(projectUuid, milestone);
         log.info("Milestone created successfully for project {}: {}", projectUuid, createdMilestone.getTitle());
         return restMapper.toMilestoneResponse(createdMilestone);
     }
@@ -61,7 +61,7 @@ public class MilestoneController {
             @PathVariable String milestoneUuid
     ) {
         log.debug("GET /project/{}/milestone/{} - Retrieving milestone", projectUuid, milestoneUuid);
-        Milestone milestone = projectService.getMilestone(projectUuid, milestoneUuid);
+        Milestone milestone = projectFacade.getMilestone(projectUuid, milestoneUuid);
         log.info("Milestone retrieved successfully for project {}: {}", projectUuid, milestone.getTitle());
         return restMapper.toMilestoneResponse(milestone);
     }
@@ -80,7 +80,7 @@ public class MilestoneController {
         }
         
         Milestone milestone = restMapper.toMilestone(command, projectUuid);
-        Milestone updatedMilestone = projectService.updateMilestone(projectUuid, milestoneUuid, milestone);
+        Milestone updatedMilestone = projectFacade.updateMilestone(projectUuid, milestoneUuid, milestone);
         log.info("Milestone updated successfully for project {}: {}", projectUuid, updatedMilestone.getTitle());
         return restMapper.toMilestoneResponse(updatedMilestone);
     }
@@ -91,7 +91,7 @@ public class MilestoneController {
             @PathVariable String milestoneUuid
     ) {
         log.debug("DELETE /project/{}/milestone/{} - Deleting milestone", projectUuid, milestoneUuid);
-        projectService.deleteMilestone(projectUuid, milestoneUuid);
+        projectFacade.deleteMilestone(projectUuid, milestoneUuid);
         log.info("Milestone deleted successfully for project {}: {}", projectUuid, milestoneUuid);
     }
 }

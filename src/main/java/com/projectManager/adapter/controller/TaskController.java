@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.projectManager.adapter.controller.command.UpsertTaskCommand;
 import com.projectManager.adapter.controller.mapper.RestMapper;
 import com.projectManager.adapter.controller.response.TaskResponse;
+import com.projectManager.domain.facade.ProjectFacade;
 import com.projectManager.domain.project.Task;
-import com.projectManager.domain.project.ProjectService;
 import com.projectManager.exception.InvalidArgumentException;
 
 import lombok.RequiredArgsConstructor;
@@ -26,13 +26,13 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 public class TaskController {
-    private final ProjectService projectService;
+    private final ProjectFacade projectFacade;
     private final RestMapper restMapper;
 
     @GetMapping
     public List<TaskResponse> listTasks(@PathVariable String projectUuid) {
         log.debug("GET /project/{}/task - Retrieving tasks", projectUuid);
-        List<Task> tasks = projectService.listTasks(projectUuid);
+        List<Task> tasks = projectFacade.getTasksByProject(projectUuid);
         log.info("Retrieved {} tasks for project {}", tasks.size(), projectUuid);
         return restMapper.toTaskResponseList(tasks);
     }
@@ -50,7 +50,7 @@ public class TaskController {
         }
         
         Task task = restMapper.toTask(command, projectUuid);
-        Task createdTask = projectService.addTaskToProject(projectUuid, task);
+        Task createdTask = projectFacade.addTaskToProject(projectUuid, task);
         log.info("Task created successfully for project {}: {}", projectUuid, createdTask.getTitle());
         return restMapper.toTaskResponse(createdTask);
     }
@@ -61,7 +61,7 @@ public class TaskController {
             @PathVariable String taskUuid
     ) {
         log.debug("GET /project/{}/task/{} - Retrieving task", projectUuid, taskUuid);
-        Task task = projectService.getTask(projectUuid, taskUuid);
+        Task task = projectFacade.getTask(projectUuid, taskUuid);
         log.info("Task retrieved successfully for project {}: {}", projectUuid, task.getTitle());
         return restMapper.toTaskResponse(task);
     }
@@ -80,7 +80,7 @@ public class TaskController {
         }
         
         Task task = restMapper.toTask(command, projectUuid);
-        Task updatedTask = projectService.updateTask(projectUuid, taskUuid, task);
+        Task updatedTask = projectFacade.updateTask(projectUuid, taskUuid, task);
         log.info("Task updated successfully for project {}: {}", projectUuid, updatedTask.getTitle());
         return restMapper.toTaskResponse(updatedTask);
     }
@@ -91,7 +91,7 @@ public class TaskController {
             @PathVariable String taskUuid
     ) {
         log.debug("DELETE /project/{}/task/{} - Deleting task", projectUuid, taskUuid);
-        projectService.deleteTask(projectUuid, taskUuid);
+        projectFacade.deleteTask(projectUuid, taskUuid);
         log.info("Task deleted successfully for project {}: {}", projectUuid, taskUuid);
     }
 }

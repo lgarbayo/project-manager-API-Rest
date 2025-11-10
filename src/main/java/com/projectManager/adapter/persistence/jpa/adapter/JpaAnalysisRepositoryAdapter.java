@@ -25,8 +25,8 @@ public class JpaAnalysisRepositoryAdapter implements AnalysisRepository {
         log.debug("Saving analysis for project: {}", analysis.getProject().getUuid());
         ProjectAnalysisEntity entity = mapper.toEntity(analysis);
         if (entity == null) {
-            log.error("Failed to convert milestone to entity");
-            throw new IllegalArgumentException("Milestone entity conversion failed");
+            log.error("Failed to convert analysis to entity");
+            throw new IllegalArgumentException("Analysis entity conversion failed");
         }
         ProjectAnalysisEntity saved = jpaRepository.save(entity);
         ProjectAnalysis savedAnalysis = mapper.toDomain(saved);

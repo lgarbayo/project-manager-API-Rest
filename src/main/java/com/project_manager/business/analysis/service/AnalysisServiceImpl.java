@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.ToDoubleFunction;
 import java.util.stream.Collectors;
 
 @Service
@@ -71,19 +72,23 @@ public class AnalysisServiceImpl implements AnalysisService {
         }
 
         LocalDate analysisDate = LocalDate.now();
+        Map<String, LocalDate> milestoneStartDates = projectMilestones.stream()
+                .collect(Collectors.toMap(Milestone::getUuid, milestone -> toLocalDate(milestone.getDate())));
 
         List<MilestoneAnalysis> milestoneAnalyses = projectMilestones.stream()
                 .map(milestone -> {
                     List<Task> milestoneTasks = tasksByMilestone.getOrDefault(milestone.getUuid(), Collections.emptyList());
-                    List<TaskAnalysis> taskAnalyses = buildTaskAnalyses(milestoneTasks, analysisDate);
-                    double milestoneCompletion = calculateAverageCompletion(taskAnalyses);
+                    LocalDate initialDate = milestoneStartDates.get(milestone.getUuid());
+                    List<TaskAnalysis> taskAnalyses = buildTaskAnalyses(milestoneTasks, initialDate, analysisDate);
+                    double initialCompletion = calculateAverageCompletion(taskAnalyses, TaskAnalysis::getInitialCompletion);
+                    double endCompletion = calculateAverageCompletion(taskAnalyses, TaskAnalysis::getEndCompletion);
                     return new MilestoneAnalysis(
                             milestone.getUuid(),
                             milestone.getTitle(),
                             milestone.getDate(),
                             milestone.getDate(),
-                            milestoneCompletion,
-                            milestoneCompletion,
+                            initialCompletion,
+                            endCompletion,
                             taskAnalyses
                     );
                 })
@@ -185,14 +190,15 @@ public class AnalysisServiceImpl implements AnalysisService {
         }
     }
 
-    private List<TaskAnalysis> buildTaskAnalyses(List<Task> tasks, LocalDate analysisDate) {
+    private List<TaskAnalysis> buildTaskAnalyses(List<Task> tasks, LocalDate initialDate, LocalDate analysisDate) {
         if (tasks == null || tasks.isEmpty()) {
             return Collections.emptyList();
         }
         return tasks.stream()
                 .map(task -> {
-                    double completion = calculateTaskCompletion(task, analysisDate);
-                    return new TaskAnalysis(task.getUuid(), task.getTitle(), completion, completion);
+                    double initialCompletion = calculateTaskCompletion(task, initialDate);
+                    double endCompletion = calculateTaskCompletion(task, analysisDate);
+                    return new TaskAnalysis(task.getUuid(), task.getTitle(), initialCompletion, endCompletion);
                 })
                 .collect(Collectors.toList());
     }
@@ -219,13 +225,13 @@ public class AnalysisServiceImpl implements AnalysisService {
         return Math.max(0D, Math.min(1D, completion));
     }
 
-    private double calculateAverageCompletion(List<TaskAnalysis> taskAnalyses) {
+    private double calculateAverageCompletion(List<TaskAnalysis> taskAnalyses, ToDoubleFunction<TaskAnalysis> extractor) {
         if (taskAnalyses == null || taskAnalyses.isEmpty()) {
             return 0D;
         }
-        double sum = taskAnalyses.stream()
-                .mapToDouble(TaskAnalysis::getEndCompletion)
-                .sum();
-        return sum / taskAnalyses.size();
+        return taskAnalyses.stream()
+                .mapToDouble(extractor)
+                .average()
+                .orElse(0D);
     }
 }

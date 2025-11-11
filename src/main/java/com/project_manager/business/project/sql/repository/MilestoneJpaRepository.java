@@ -1,8 +1,9 @@
-package com.project_manager.business.project.persistence.sql.repository;
+package com.project_manager.business.project.sql.repository;
 
-import com.project_manager.business.project.persistence.sql.entity.MilestoneEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+
+import com.project_manager.business.project.sql.entity.MilestoneEntity;
 
 import java.util.List;
 

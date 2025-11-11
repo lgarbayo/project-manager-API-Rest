@@ -1,8 +1,9 @@
-package com.project_manager.business.project.persistence.sql.mapper;
+package com.project_manager.business.project.sql.mapper;
 
-import com.project_manager.business.project.persistence.sql.entity.MilestoneEntity;
 import com.project_manager.shared.core.dateType.DateType;
 import com.project_manager.business.project.model.Milestone;
+import com.project_manager.business.project.sql.entity.MilestoneEntity;
+
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;

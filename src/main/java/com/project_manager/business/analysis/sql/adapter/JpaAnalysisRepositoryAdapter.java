@@ -1,10 +1,11 @@
-package com.project_manager.business.analysis.persistence.sql.adapter;
+package com.project_manager.business.analysis.sql.adapter;
 
 import com.project_manager.business.analysis.port.AnalysisRepository;
+import com.project_manager.business.analysis.sql.entity.ProjectAnalysisEntity;
+import com.project_manager.business.analysis.sql.mapper.ProjectAnalysisMapper;
+import com.project_manager.business.analysis.sql.repository.ProjectAnalysisJpaRepository;
 import com.project_manager.business.analysis.model.ProjectAnalysis;
-import com.project_manager.business.analysis.persistence.sql.repository.ProjectAnalysisJpaRepository;
-import com.project_manager.business.analysis.persistence.sql.entity.ProjectAnalysisEntity;
-import com.project_manager.business.analysis.persistence.sql.mapper.ProjectAnalysisMapper;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;

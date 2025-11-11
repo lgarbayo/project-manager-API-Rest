@@ -15,7 +15,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,7 +51,7 @@ public class AnalysisServiceImpl implements AnalysisService {
                 .sorted(this::compareTasksByStartDate)
                 .collect(Collectors.toList());
 
-        Map<String, List<TaskAnalysis>> tasksByMilestone = projectMilestones.stream()
+        Map<String, List<Task>> tasksByMilestone = projectMilestones.stream()
                 .collect(Collectors.toMap(
                         Milestone::getUuid,
                         milestone -> new ArrayList<>(),
@@ -61,24 +63,30 @@ public class AnalysisServiceImpl implements AnalysisService {
             projectTasks.forEach(task -> {
                 Milestone targetMilestone = resolveTargetMilestone(projectMilestones, task);
                 if (targetMilestone != null) {
-                    tasksByMilestone.get(targetMilestone.getUuid())
-                            .add(new TaskAnalysis(task.getUuid(), task.getTitle(), 0D, 0D));
+                    tasksByMilestone.get(targetMilestone.getUuid()).add(task);
                 }
             });
         } else if (!projectTasks.isEmpty()) {
             log.debug("Project {} has tasks but no milestones to associate them with.", projectCoreData.getTitle());
         }
 
+        LocalDate analysisDate = LocalDate.now();
+
         List<MilestoneAnalysis> milestoneAnalyses = projectMilestones.stream()
-                .map(milestone -> new MilestoneAnalysis(
-                        milestone.getUuid(),
-                        milestone.getTitle(),
-                        milestone.getDate(),
-                        milestone.getDate(),
-                        0D,
-                        0D,
-                        tasksByMilestone.get(milestone.getUuid())
-                ))
+                .map(milestone -> {
+                    List<Task> milestoneTasks = tasksByMilestone.getOrDefault(milestone.getUuid(), Collections.emptyList());
+                    List<TaskAnalysis> taskAnalyses = buildTaskAnalyses(milestoneTasks, analysisDate);
+                    double milestoneCompletion = calculateAverageCompletion(taskAnalyses);
+                    return new MilestoneAnalysis(
+                            milestone.getUuid(),
+                            milestone.getTitle(),
+                            milestone.getDate(),
+                            milestone.getDate(),
+                            milestoneCompletion,
+                            milestoneCompletion,
+                            taskAnalyses
+                    );
+                })
                 .collect(Collectors.toList());
 
         ProjectAnalysis analysis = new ProjectAnalysis(projectCoreData, milestoneAnalyses);
@@ -175,5 +183,49 @@ public class AnalysisServiceImpl implements AnalysisService {
             throw new InvalidArgumentException("Invalid date: year=" + date.getYear() + 
                 ", month=" + date.getMonth() + ", week=" + date.getWeek(), e);
         }
+    }
+
+    private List<TaskAnalysis> buildTaskAnalyses(List<Task> tasks, LocalDate analysisDate) {
+        if (tasks == null || tasks.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return tasks.stream()
+                .map(task -> {
+                    double completion = calculateTaskCompletion(task, analysisDate);
+                    return new TaskAnalysis(task.getUuid(), task.getTitle(), completion, completion);
+                })
+                .collect(Collectors.toList());
+    }
+
+    private double calculateTaskCompletion(Task task, LocalDate analysisDate) {
+        if (task == null) {
+            return 0D;
+        }
+        LocalDate startDate = toLocalDate(task.getStartDate());
+        LocalDate endDate = startDate.plusWeeks(Math.max(1, task.getDurationWeeks()));
+        // plusWeeks adds the specified number of weeks to the start date, we add at least 1 week to avoid zero-duration tasks
+
+        if (analysisDate.isBefore(startDate)) {
+            return 0D;
+        }
+        if (!analysisDate.isBefore(endDate)) { // when analysisDate is on or after endDate
+            return 1D;
+        }
+
+        long totalDays = Math.max(1, ChronoUnit.DAYS.between(startDate, endDate));
+        long elapsedDays = Math.max(0, ChronoUnit.DAYS.between(startDate, analysisDate));
+
+        double completion = (double) elapsedDays / totalDays;
+        return Math.max(0D, Math.min(1D, completion));
+    }
+
+    private double calculateAverageCompletion(List<TaskAnalysis> taskAnalyses) {
+        if (taskAnalyses == null || taskAnalyses.isEmpty()) {
+            return 0D;
+        }
+        double sum = taskAnalyses.stream()
+                .mapToDouble(TaskAnalysis::getEndCompletion)
+                .sum();
+        return sum / taskAnalyses.size();
     }
 }

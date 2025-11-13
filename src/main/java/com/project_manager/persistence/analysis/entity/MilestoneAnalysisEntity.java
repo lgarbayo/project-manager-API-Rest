@@ -1,4 +1,4 @@
-package com.project_manager.business.analysis.sql.entity;
+package com.project_manager.persistence.analysis.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

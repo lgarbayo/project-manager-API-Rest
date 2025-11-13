@@ -1,13 +1,13 @@
-package com.project_manager.business.analysis.sql.mapper;
+package com.project_manager.persistence.analysis.mapper;
 
 import com.project_manager.shared.core.dateType.DateType;
 import com.project_manager.shared.core.project.ProjectCoreData;
 import com.project_manager.business.analysis.model.ProjectAnalysis;
 import com.project_manager.business.analysis.model.MilestoneAnalysis;
 import com.project_manager.business.analysis.model.TaskAnalysis;
-import com.project_manager.business.analysis.sql.entity.MilestoneAnalysisEntity;
-import com.project_manager.business.analysis.sql.entity.ProjectAnalysisEntity;
-import com.project_manager.business.analysis.sql.entity.TaskAnalysisEntity;
+import com.project_manager.persistence.analysis.entity.MilestoneAnalysisEntity;
+import com.project_manager.persistence.analysis.entity.ProjectAnalysisEntity;
+import com.project_manager.persistence.analysis.entity.TaskAnalysisEntity;
 
 import org.springframework.stereotype.Component;
 

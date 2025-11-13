@@ -1,9 +1,9 @@
-package com.project_manager.business.analysis.sql.adapter;
+package com.project_manager.persistence.analysis.adapter;
 
 import com.project_manager.business.analysis.port.AnalysisRepository;
-import com.project_manager.business.analysis.sql.entity.ProjectAnalysisEntity;
-import com.project_manager.business.analysis.sql.mapper.ProjectAnalysisMapper;
-import com.project_manager.business.analysis.sql.repository.ProjectAnalysisJpaRepository;
+import com.project_manager.persistence.analysis.repository.ProjectAnalysisJpaRepository;
+import com.project_manager.persistence.analysis.mapper.ProjectAnalysisMapper;
+import com.project_manager.persistence.analysis.entity.ProjectAnalysisEntity;
 import com.project_manager.business.analysis.model.ProjectAnalysis;
 
 import lombok.RequiredArgsConstructor;

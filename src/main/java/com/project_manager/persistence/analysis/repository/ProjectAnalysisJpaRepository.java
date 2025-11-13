@@ -1,9 +1,9 @@
-package com.project_manager.business.analysis.sql.repository;
+package com.project_manager.persistence.analysis.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.project_manager.business.analysis.sql.entity.ProjectAnalysisEntity;
+import com.project_manager.persistence.analysis.entity.ProjectAnalysisEntity;
 
 import java.util.List;
 

@@ -124,7 +124,11 @@ public class ProjectFacadeImpl implements ProjectFacade {
     @Override
     public ProjectAnalysis analyzeProject(String projectUuid) {
         log.debug("Analyzing project through facade: {}", projectUuid);
-        return analysisService.analyzeProject(projectUuid);
+        Project project = projectService.getProject(projectUuid);
+        ProjectCoreData projectCoreData = mapToProjectCoreData(project);
+        List<Milestone> milestones = projectService.listMilestones(projectUuid);
+        List<Task> tasks = projectService.listTasks(projectUuid);
+        return analysisService.analyzeProject(projectCoreData, milestones, tasks);
     }
 
     private ProjectCoreData mapToProjectCoreData(Project project) {

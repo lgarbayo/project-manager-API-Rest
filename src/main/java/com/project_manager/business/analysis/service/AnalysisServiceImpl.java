@@ -4,7 +4,6 @@ import com.project_manager.business.analysis.model.MilestoneAnalysis;
 import com.project_manager.business.analysis.model.ProjectAnalysis;
 import com.project_manager.business.analysis.model.TaskAnalysis;
 import com.project_manager.business.analysis.port.AnalysisRepository;
-import com.project_manager.business.facade.ProjectFacade;
 import com.project_manager.business.project.model.Milestone;
 import com.project_manager.business.project.model.Task;
 import com.project_manager.shared.core.dateType.DateType;
@@ -28,31 +27,28 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class AnalysisServiceImpl implements AnalysisService {
-    private final ProjectFacade projectFacade;
     private final AnalysisRepository analysisRepository;
 
     @Override
-    public ProjectAnalysis analyzeProject(String projectUuid) {
-        if (projectUuid == null || projectUuid.trim().isEmpty()) {
-            log.warn("Attempted to analyze project with null or empty UUID: {}");
-            throw new InvalidArgumentException("Project UUID cannot be null or empty");
+    public ProjectAnalysis analyzeProject(ProjectCoreData projectCoreData, List<Milestone> projectMilestones, List<Task> projectTasks) {
+        if (projectCoreData == null) {
+            log.warn("Attempted to analyze project with null core data");
+            throw new InvalidArgumentException("Project core data cannot be null");
         }
-        
-        log.info("Building analysis for project: {}", projectUuid);
-        
-        ProjectCoreData projectCoreData = projectFacade.getProjectCoreData(projectUuid);
 
-        List<Milestone> projectMilestones = projectFacade.getMilestonesByProject(projectUuid)
-                .stream()
-                .sorted(this::compareMilestonesByDate)
-                .collect(Collectors.toList());
+        log.info("Building analysis for project: {}", projectCoreData.getUuid());
 
-        List<Task> projectTasks = projectFacade.getTasksByProject(projectUuid)
-                .stream()
-                .sorted(this::compareTasksByStartDate)
-                .collect(Collectors.toList());
+        List<Milestone> sortedMilestones = projectMilestones == null ? Collections.emptyList() :
+                projectMilestones.stream()
+                        .sorted(this::compareMilestonesByDate)
+                        .collect(Collectors.toList());
 
-        Map<String, List<Task>> tasksByMilestone = projectMilestones.stream()
+        List<Task> sortedTasks = projectTasks == null ? Collections.emptyList() :
+                projectTasks.stream()
+                        .sorted(this::compareTasksByStartDate)
+                        .collect(Collectors.toList());
+
+        Map<String, List<Task>> tasksByMilestone = sortedMilestones.stream()
                 .collect(Collectors.toMap(
                         Milestone::getUuid,
                         milestone -> new ArrayList<>(),
@@ -60,22 +56,22 @@ public class AnalysisServiceImpl implements AnalysisService {
                         LinkedHashMap::new
                 ));
 
-        if (!projectMilestones.isEmpty()) {
-            projectTasks.forEach(task -> {
-                Milestone targetMilestone = resolveTargetMilestone(projectMilestones, task);
+        if (!sortedMilestones.isEmpty()) {
+            sortedTasks.forEach(task -> {
+                Milestone targetMilestone = resolveTargetMilestone(sortedMilestones, task);
                 if (targetMilestone != null) {
                     tasksByMilestone.get(targetMilestone.getUuid()).add(task);
                 }
             });
-        } else if (!projectTasks.isEmpty()) {
+        } else if (!sortedTasks.isEmpty()) {
             log.debug("Project {} has tasks but no milestones to associate them with.", projectCoreData.getTitle());
         }
 
         LocalDate analysisDate = LocalDate.now();
-        Map<String, LocalDate> milestoneStartDates = projectMilestones.stream()
+        Map<String, LocalDate> milestoneStartDates = sortedMilestones.stream()
                 .collect(Collectors.toMap(Milestone::getUuid, milestone -> toLocalDate(milestone.getDate())));
 
-        List<MilestoneAnalysis> milestoneAnalyses = projectMilestones.stream()
+        List<MilestoneAnalysis> milestoneAnalyses = sortedMilestones.stream()
                 .map(milestone -> {
                     List<Task> milestoneTasks = tasksByMilestone.getOrDefault(milestone.getUuid(), Collections.emptyList());
                     LocalDate initialDate = milestoneStartDates.get(milestone.getUuid());

@@ -1,7 +1,7 @@
-package com.project_manager.business.analysis.sql.mapper;
+package com.project_manager.persistence.analysis.mapper;
 
 import com.project_manager.business.analysis.model.MilestoneAnalysis;
-import com.project_manager.business.analysis.sql.entity.MilestoneAnalysisEntity;
+import com.project_manager.persistence.analysis.entity.MilestoneAnalysisEntity;
 import com.project_manager.shared.core.dateType.DateTypeMapper;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;

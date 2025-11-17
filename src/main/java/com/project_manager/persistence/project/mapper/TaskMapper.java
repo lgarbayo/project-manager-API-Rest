@@ -1,8 +1,8 @@
-package com.project_manager.business.project.sql.mapper;
+package com.project_manager.persistence.project.mapper;
 
 import com.project_manager.shared.core.dateType.DateType;
 import com.project_manager.business.project.model.Task;
-import com.project_manager.business.project.sql.entity.TaskEntity;
+import com.project_manager.persistence.project.entity.TaskEntity;
 
 import org.springframework.stereotype.Component;
 

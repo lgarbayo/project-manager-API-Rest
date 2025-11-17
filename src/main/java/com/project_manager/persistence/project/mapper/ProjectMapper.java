@@ -1,8 +1,8 @@
-package com.project_manager.business.project.sql.mapper;
+package com.project_manager.persistence.project.mapper;
 
 import com.project_manager.shared.core.dateType.DateType;
 import com.project_manager.business.project.model.Project;
-import com.project_manager.business.project.sql.entity.ProjectEntity;
+import com.project_manager.persistence.project.entity.ProjectEntity;
 
 import org.springframework.stereotype.Component;
 

@@ -1,160 +1,47 @@
 package com.project_manager.persistence.analysis.mapper;
 
-import com.project_manager.shared.core.dateType.DateType;
-import com.project_manager.shared.core.project.ProjectCoreData;
 import com.project_manager.business.analysis.model.ProjectAnalysis;
+<<<<<<< HEAD:src/main/java/com/project_manager/persistence/analysis/mapper/ProjectAnalysisMapper.java
 import com.project_manager.business.analysis.model.MilestoneAnalysis;
 import com.project_manager.business.analysis.model.TaskAnalysis;
 import com.project_manager.persistence.analysis.entity.MilestoneAnalysisEntity;
 import com.project_manager.persistence.analysis.entity.ProjectAnalysisEntity;
 import com.project_manager.persistence.analysis.entity.TaskAnalysisEntity;
+=======
+import com.project_manager.business.analysis.sql.entity.ProjectAnalysisEntity;
+import com.project_manager.shared.core.dateType.DateTypeMapper;
+import org.mapstruct.AfterMapping;
+import org.mapstruct.InheritInverseConfiguration;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
+>>>>>>> 83c27c6 (feat: included mapstructs):src/main/java/com/project_manager/business/analysis/sql/mapper/ProjectAnalysisMapper.java
 
-import org.springframework.stereotype.Component;
-
-import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Collectors;
 
-@Component
-public class ProjectAnalysisMapper {
+@Mapper(componentModel = "spring", uses = {DateTypeMapper.class, MilestoneAnalysisMapper.class})
+public interface ProjectAnalysisMapper {
 
-    public ProjectAnalysis toDomain(ProjectAnalysisEntity entity) {
-        if (entity == null) {
-            return null;
+    @Mapping(target = "project.uuid", source = "projectUuid")
+    @Mapping(target = "project.title", source = "projectTitle")
+    @Mapping(target = "project.description", source = "projectDescription")
+    @Mapping(target = "project.startDate", source = "startDate")
+    @Mapping(target = "project.endDate", source = "endDate")
+    @Mapping(target = "project.additionalFields", source = "additionalFields")
+    @Mapping(target = "milestoneList", source = "milestoneAnalyses")
+    ProjectAnalysis toDomain(ProjectAnalysisEntity entity);
+
+    @InheritInverseConfiguration
+    ProjectAnalysisEntity toEntity(ProjectAnalysis analysis);
+
+    List<ProjectAnalysis> toDomainList(List<ProjectAnalysisEntity> entities);
+    List<ProjectAnalysisEntity> toEntityList(List<ProjectAnalysis> analyses);
+
+    // to set bidirectional relationships: each MilestoneAnalysisEntity must reference its parent ProjectAnalysisEntity
+    @AfterMapping
+    default void linkMilestones(@MappingTarget ProjectAnalysisEntity entity) {
+        if (entity.getMilestoneAnalyses() != null) {
+            entity.getMilestoneAnalyses().forEach(milestone -> milestone.setProjectAnalysis(entity));
         }
-        
-        ProjectCoreData projectCoreData = new ProjectCoreData();
-        projectCoreData.setUuid(entity.getProjectUuid());
-        projectCoreData.setTitle(entity.getProjectTitle());
-        projectCoreData.setDescription(entity.getProjectDescription());
-        projectCoreData.setStartDate(localDateToDateType(entity.getStartDate().toLocalDate()));
-        projectCoreData.setEndDate(localDateToDateType(entity.getEndDate().toLocalDate()));
-        projectCoreData.setAdditionalFields(entity.getAdditionalFields());
-        
-        List<MilestoneAnalysis> milestoneList = entity.getMilestoneAnalyses().stream()
-                .map(this::milestoneAnalysisEntityToDomain)
-                .collect(Collectors.toList());
-        
-        return new ProjectAnalysis(projectCoreData, milestoneList);
-    }
-
-    public ProjectAnalysisEntity toEntity(ProjectAnalysis analysis) {
-        if (analysis == null) {
-            return null;
-        }
-        
-        ProjectCoreData project = analysis.getProject();
-        
-        ProjectAnalysisEntity entity = new ProjectAnalysisEntity();
-        entity.setProjectUuid(project.getUuid());
-        entity.setProjectTitle(project.getTitle());
-        entity.setProjectDescription(project.getDescription());
-        
-        // convert dateType dates into localDateTime
-        entity.setStartDate(dateTypeToLocalDate(project.getStartDate()).atStartOfDay());
-        entity.setEndDate(dateTypeToLocalDate(project.getEndDate()).atStartOfDay());
-
-        // fixed here the error: additionalFields was not being initialized properly
-        entity.setAdditionalFields(project.getAdditionalFields() != null ? 
-            new java.util.HashMap<>(project.getAdditionalFields()) : new java.util.HashMap<>());
-        
-        List<MilestoneAnalysisEntity> milestoneEntities = analysis.getMilestoneList().stream()
-                .map(this::milestoneAnalysisDomainToEntity)
-                .collect(Collectors.toList());
-        entity.setMilestoneAnalyses(milestoneEntities);
-        
-        return entity;
-    }
-
-    public List<ProjectAnalysis> toDomainList(List<ProjectAnalysisEntity> entities) {
-        return entities.stream()
-                .map(this::toDomain)
-                .collect(Collectors.toList());
-    }
-
-    private MilestoneAnalysis milestoneAnalysisEntityToDomain(MilestoneAnalysisEntity entity) {
-        List<TaskAnalysis> taskList = entity.getTaskAnalyses().stream()
-                .map(this::taskAnalysisEntityToDomain)
-                .collect(Collectors.toList());
-        
-        return new MilestoneAnalysis(
-                entity.getMilestoneUuid(),
-                entity.getMilestoneTitle(),
-                localDateToDateType(entity.getStartDate()),
-                localDateToDateType(entity.getEndDate()),
-                entity.getInitialCompletion(),
-                entity.getEndCompletion(),
-                taskList
-        );
-    }
-
-    private MilestoneAnalysisEntity milestoneAnalysisDomainToEntity(MilestoneAnalysis milestone) {
-        List<TaskAnalysisEntity> taskEntities = milestone.getTaskList().stream()
-                .map(this::taskAnalysisDomainToEntity)
-                .collect(Collectors.toList());
-        
-        MilestoneAnalysisEntity entity = new MilestoneAnalysisEntity();
-        entity.setMilestoneUuid(milestone.getMilestoneUuid());
-        entity.setMilestoneTitle(milestone.getMilestoneTitle());
-        entity.setStartDate(dateTypeToLocalDate(milestone.getStartDate()));
-        entity.setEndDate(dateTypeToLocalDate(milestone.getEndDate()));
-        entity.setInitialCompletion(milestone.getInitialCompletion());
-        entity.setEndCompletion(milestone.getEndCompletion());
-        entity.setTaskAnalyses(taskEntities);
-        
-        return entity;
-    }
-
-    private TaskAnalysis taskAnalysisEntityToDomain(TaskAnalysisEntity entity) {
-        return new TaskAnalysis(
-                entity.getTaskUuid(),
-                entity.getTaskTitle(),
-                entity.getInitialCompletion(),
-                entity.getEndCompletion()
-        );
-    }
-
-    private TaskAnalysisEntity taskAnalysisDomainToEntity(TaskAnalysis task) {
-        TaskAnalysisEntity entity = new TaskAnalysisEntity();
-        entity.setTaskUuid(task.getTaskUuid());
-        entity.setTaskTitle(task.getTaskTitle());
-        entity.setInitialCompletion(task.getInitialCompletion());
-        entity.setEndCompletion(task.getEndCompletion());
-        
-        return entity;
-    }
-
-    private DateType localDateToDateType(LocalDate localDate) {
-        if (localDate == null) {
-            return null;
-        }
-        
-        DateType dateType = new DateType();
-        dateType.setYear(localDate.getYear());
-        dateType.setMonth(localDate.getMonthValue() - 1); // LocalDate uses 1-12, DateType uses 0-11
-        
-        // Calculate week of month (approximate)
-        int dayOfMonth = localDate.getDayOfMonth();
-        int week = (dayOfMonth - 1) / 7; // 0-based week of month
-        dateType.setWeek(Math.min(week, 3)); // DateType uses 0-3
-        
-        return dateType;
-    }
-
-    private LocalDate dateTypeToLocalDate(DateType dateType) {
-        if (dateType == null) {
-            return null;
-        }
-        
-        int month = dateType.getMonth() + 1; // DateType uses 0-11, LocalDate uses 1-12
-        int dayOfMonth = (dateType.getWeek() * 7) + 1; // Approximate day from week
-        
-        // Ensure valid day of month
-        int year = dateType.getYear();
-        LocalDate firstDayOfMonth = LocalDate.of(year, month, 1);
-        int maxDayOfMonth = firstDayOfMonth.lengthOfMonth();
-        dayOfMonth = Math.min(dayOfMonth, maxDayOfMonth);
-        
-        return LocalDate.of(year, month, dayOfMonth);
     }
 }

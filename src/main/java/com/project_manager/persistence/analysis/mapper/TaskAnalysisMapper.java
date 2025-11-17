@@ -2,6 +2,7 @@ package com.project_manager.persistence.analysis.mapper;
 
 import com.project_manager.business.analysis.model.TaskAnalysis;
 import com.project_manager.persistence.analysis.entity.TaskAnalysisEntity;
+
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

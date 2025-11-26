@@ -7,7 +7,7 @@ services:
       POSTGRES_USER: luis.gf
       POSTGRES_PASSWORD: provisional
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     networks:
@@ -27,7 +27,7 @@ services:
       postgres:
         condition: service_healthy
     ports:
-      - "8081:8082"
+      - "8085:8082"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/manager
       SPRING_DATASOURCE_USERNAME: luis.gf

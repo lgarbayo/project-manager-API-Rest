@@ -29,8 +29,9 @@ public class ProjectEntity {
     @Column(name = "end_date", nullable = false)
     private LocalDate endDate;
     
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "project_additional_fields", joinColumns = @JoinColumn(name = "project_uuid"))
-    @Column(name = "additional_field_value")
+    @MapKeyColumn(name = "field_key")
+    @Column(name = "field_value")
     private Map<String, String> additionalFields;
 }

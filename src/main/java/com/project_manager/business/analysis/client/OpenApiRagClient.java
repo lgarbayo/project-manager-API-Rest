@@ -14,13 +14,14 @@ import org.springframework.web.client.RestTemplate;
 
 import com.project_manager.business.analysis.client.dto.RagEstimateRequest;
 import com.project_manager.business.analysis.client.dto.RagEstimateResponse;
+import com.project_manager.business.analysis.model.TaskEstimation;
 import com.project_manager.shared.exception.ManagerException;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Component
 @Slf4j
-public class OpenApiRagClient {
+public class OpenApiRagClient implements TaskEstimatorClient {
     private final RestTemplate restTemplate;
     private final String baseUrl;
     private final String estimatePathTemplate;
@@ -43,11 +44,23 @@ public class OpenApiRagClient {
         this.apiKey = apiKey;
     }
 
-    public RagEstimateResponse estimateTask(RagEstimateRequest request) {
-        if (request == null) {
-            throw new ManagerException("RAG estimate request cannot be null");
+    @Override
+    public TaskEstimation estimateTask(String projectUuid, String taskUuid, String prompt) {
+        if (!StringUtils.hasText(prompt)) {
+            throw new ManagerException("Prompt is required for RAG estimation");
         }
 
+        RagEstimateRequest request = RagEstimateRequest.builder()
+                .projectUuid(projectUuid)
+                .taskUuid(taskUuid)
+                .prompt(prompt)
+                .build();
+
+        RagEstimateResponse response = invokeEstimate(request);
+        return mapToTaskEstimation(projectUuid, taskUuid, prompt, response);
+    }
+
+    private RagEstimateResponse invokeEstimate(RagEstimateRequest request) {
         String url = buildEstimateUrl(request.getProjectUuid(), request.getTaskUuid());
         HttpHeaders headers = buildHeaders();
         HttpEntity<RagEstimateRequest> entity = new HttpEntity<>(request, headers);
@@ -58,6 +71,17 @@ public class OpenApiRagClient {
             log.error("Failed to call RAG estimator at {}: {}", url, ex.getMessage());
             throw new ManagerException("Unable to retrieve estimation from external service", ex);
         }
+    }
+
+    private TaskEstimation mapToTaskEstimation(String projectUuid, String taskUuid, String prompt, RagEstimateResponse response) {
+        return TaskEstimation.builder()
+                .projectUuid(projectUuid)
+                .taskUuid(taskUuid)
+                .prompt(prompt)
+                .minutes(response != null ? response.getMinutes() : null)
+                .explanation(response != null ? response.getExplanation() : null)
+                .rawAnswer(response != null ? response.getRawAnswer() : null)
+                .build();
     }
 
     private HttpHeaders buildHeaders() {

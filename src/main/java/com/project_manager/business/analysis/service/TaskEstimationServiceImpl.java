@@ -8,7 +8,9 @@ import com.project_manager.business.analysis.model.TaskEstimation;
 import com.project_manager.business.project.model.Project;
 import com.project_manager.business.project.model.Task;
 import com.project_manager.business.project.service.ProjectService;
+import com.project_manager.shared.exception.ExternalServiceException;
 import com.project_manager.shared.exception.InvalidArgumentException;
+import com.project_manager.shared.exception.ManagerException;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,11 +32,22 @@ public class TaskEstimationServiceImpl implements TaskEstimationService {
         Task task = projectService.getTask(projectUuid, taskUuid);
 
         String prompt = taskPromptBuilder.buildPrompt(project, task, promptOverride);
-        TaskEstimation estimation = taskEstimatorClient.estimateTask(projectUuid, taskUuid, prompt);
+        TaskEstimation estimation = executeEstimation(projectUuid, taskUuid, prompt);
         log.info("Received RAG estimation for project {} task {} with hours {}", projectUuid, taskUuid,
                 estimation != null ? estimation.getHours() : null);
 
         return estimation;
+    }
+
+    private TaskEstimation executeEstimation(String projectUuid, String taskUuid, String prompt) {
+        try {
+            return taskEstimatorClient.estimateTask(projectUuid, taskUuid, prompt);
+        } catch (ManagerException ex) {
+            log.error("External task estimation unavailable for project {} task {}: {}", projectUuid, taskUuid, ex.getMessage());
+            throw new ExternalServiceException(
+                    "Task estimation service is temporarily unavailable. Please try again later.", ex
+            );
+        }
     }
 
     private void validate(String projectUuid, String taskUuid) {

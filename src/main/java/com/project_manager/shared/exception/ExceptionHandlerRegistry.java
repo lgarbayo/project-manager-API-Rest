@@ -31,6 +31,9 @@ public class ExceptionHandlerRegistry {
         exceptionHandler.put(ConflictException.class, (ex, request) -> {
             return buildResponse(HttpStatus.CONFLICT, "Conflict", ex, request);
         });
+        exceptionHandler.put(ExternalServiceException.class, (ex, request) -> {
+            return buildResponse(HttpStatus.BAD_GATEWAY, "External Service Error", ex, request);
+        });
     }
 
     public ResponseEntity<ErrorResponse> executeCommand(ManagerException ex, WebRequest request) {

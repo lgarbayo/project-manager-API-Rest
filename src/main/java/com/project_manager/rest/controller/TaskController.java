@@ -11,12 +11,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.project_manager.rest.command.UpsertTaskCommand;
-import com.project_manager.rest.mapper.RestMapper;
-import com.project_manager.rest.response.TaskResponse;
+import com.project_manager.business.analysis.model.TaskEstimation;
 import com.project_manager.business.facade.ProjectFacade;
 import com.project_manager.business.project.model.Task;
 import com.project_manager.shared.exception.InvalidArgumentException;
+import com.project_manager.rest.command.TaskEstimationRequest;
+import com.project_manager.rest.command.UpsertTaskCommand;
+import com.project_manager.rest.mapper.RestMapper;
+import com.project_manager.rest.response.TaskEstimationResponse;
+import com.project_manager.rest.response.TaskResponse;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -93,5 +96,17 @@ public class TaskController {
         log.debug("DELETE /project/{}/task/{} - Deleting task", projectUuid, taskUuid);
         projectFacade.deleteTask(projectUuid, taskUuid);
         log.info("Task deleted successfully for project {}: {}", projectUuid, taskUuid);
+    }
+
+    @PostMapping("/{taskUuid}/estimate")
+    public TaskEstimationResponse estimateTask(
+            @PathVariable String projectUuid,
+            @PathVariable String taskUuid,
+            @RequestBody(required = false) TaskEstimationRequest request
+    ) {
+        log.debug("POST /project/{}/task/{}/estimate - Requesting estimation", projectUuid, taskUuid);
+        String prompt = request != null ? request.getPrompt() : null;
+        TaskEstimation estimation = projectFacade.estimateTask(projectUuid, taskUuid, prompt);
+        return restMapper.toTaskEstimationResponse(estimation);
     }
 }

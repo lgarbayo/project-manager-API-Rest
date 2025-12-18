@@ -1,7 +1,9 @@
 package com.project_manager.business.facade;
 
 import com.project_manager.business.analysis.model.ProjectAnalysis;
+import com.project_manager.business.analysis.model.TaskEstimation;
 import com.project_manager.business.analysis.service.AnalysisService;
+import com.project_manager.business.analysis.service.TaskEstimationService;
 import com.project_manager.business.project.model.Milestone;
 import com.project_manager.business.project.model.Project;
 import com.project_manager.business.project.model.Task;
@@ -21,6 +23,7 @@ public class ProjectFacadeImpl implements ProjectFacade {
     
     private final ProjectService projectService;
     private final AnalysisService analysisService;
+    private final TaskEstimationService taskEstimationService;
     
     @Override
     public List<Project> listProjects() {
@@ -129,6 +132,12 @@ public class ProjectFacadeImpl implements ProjectFacade {
         List<Milestone> milestones = projectService.listMilestones(projectUuid);
         List<Task> tasks = projectService.listTasks(projectUuid);
         return analysisService.analyzeProject(projectCoreData, milestones, tasks);
+    }
+
+    @Override
+    public TaskEstimation estimateTask(String projectUuid, String taskUuid, String promptOverride) {
+        log.debug("Requesting estimation for project {} task {}", projectUuid, taskUuid);
+        return taskEstimationService.estimateTask(projectUuid, taskUuid, promptOverride);
     }
 
     private ProjectCoreData mapToProjectCoreData(Project project) {

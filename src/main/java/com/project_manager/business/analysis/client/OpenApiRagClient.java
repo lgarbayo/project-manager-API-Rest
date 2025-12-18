@@ -78,7 +78,7 @@ public class OpenApiRagClient implements TaskEstimatorClient {
                 .projectUuid(projectUuid)
                 .taskUuid(taskUuid)
                 .prompt(prompt)
-                .minutes(response != null ? response.getMinutes() : null)
+                .hours(response != null ? response.getHours() : null)
                 .explanation(response != null ? response.getExplanation() : null)
                 .rawAnswer(response != null ? response.getRawAnswer() : null)
                 .build();

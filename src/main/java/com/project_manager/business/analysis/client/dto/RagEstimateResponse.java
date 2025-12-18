@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RagEstimateResponse {
-    private Integer minutes;
+    private Integer hours;
     private String explanation;
     @JsonProperty("raw_answer")
     private String rawAnswer;

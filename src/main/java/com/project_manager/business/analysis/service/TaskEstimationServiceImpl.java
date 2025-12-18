@@ -31,8 +31,8 @@ public class TaskEstimationServiceImpl implements TaskEstimationService {
 
         String prompt = taskPromptBuilder.buildPrompt(project, task, promptOverride);
         TaskEstimation estimation = taskEstimatorClient.estimateTask(projectUuid, taskUuid, prompt);
-        log.info("Received RAG estimation for project {} task {} with minutes {}", projectUuid, taskUuid,
-                estimation != null ? estimation.getMinutes() : null);
+        log.info("Received RAG estimation for project {} task {} with hours {}", projectUuid, taskUuid,
+                estimation != null ? estimation.getHours() : null);
 
         return estimation;
     }

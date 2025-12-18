@@ -13,7 +13,7 @@ public class TaskEstimation {
     private String projectUuid;
     private String taskUuid;
     private String prompt;
-    private Integer minutes;
+    private Integer hours;
     private String explanation;
     private String rawAnswer;
 }

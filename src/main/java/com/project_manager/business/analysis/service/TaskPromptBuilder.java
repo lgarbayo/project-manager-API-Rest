@@ -28,7 +28,7 @@ public class TaskPromptBuilder {
                 Task duration (weeks): %d
                 Task start date: %s
 
-                Provide an estimated effort for the task in minutes along with a short explanation of the reasoning.
+                Provide an estimated effort for the task in hours along with a short explanation of the reasoning.
                 """.formatted(
                 project.getTitle(),
                 projectDescription,

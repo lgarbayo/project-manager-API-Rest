@@ -35,10 +35,7 @@ public class ProjectAnalysisEntity {
     @Column(name = "end_date", nullable = false)
     private LocalDate endDate;
 
-    @ElementCollection
-    @CollectionTable(name = "project_additional_fields", joinColumns = @JoinColumn(name = "project_uuid"))
-    @MapKeyColumn(name = "field_key")
-    @Column(name = "field_value")
+    @Transient
     private Map<String, String> additionalFields;
     
     @OneToMany(mappedBy = "projectAnalysis", cascade = CascadeType.ALL, orphanRemoval = true)

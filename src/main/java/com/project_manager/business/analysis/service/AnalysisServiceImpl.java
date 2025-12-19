@@ -68,14 +68,11 @@ public class AnalysisServiceImpl implements AnalysisService {
         }
 
         LocalDate analysisDate = LocalDate.now();
-        Map<String, LocalDate> milestoneTargetDates = sortedMilestones.stream()
-                .collect(Collectors.toMap(Milestone::getUuid, milestone -> toLocalDate(milestone.getDate())));
 
         List<MilestoneAnalysis> milestoneAnalyses = sortedMilestones.stream()
                 .map(milestone -> {
                     List<Task> milestoneTasks = tasksByMilestone.getOrDefault(milestone.getUuid(), Collections.emptyList());
-                    LocalDate targetDate = milestoneTargetDates.get(milestone.getUuid());
-                    List<TaskAnalysis> taskAnalyses = buildTaskAnalyses(milestoneTasks, analysisDate, targetDate);
+                    List<TaskAnalysis> taskAnalyses = buildTaskAnalyses(milestoneTasks, analysisDate);
                     double initialCompletion = calculateAverageCompletion(taskAnalyses, TaskAnalysis::getInitialCompletion);
                     double endCompletion = calculateAverageCompletion(taskAnalyses, TaskAnalysis::getEndCompletion);
                     return new MilestoneAnalysis(
@@ -91,11 +88,8 @@ public class AnalysisServiceImpl implements AnalysisService {
                 .collect(Collectors.toList());
 
         ProjectAnalysis analysis = new ProjectAnalysis(projectCoreData, milestoneAnalyses);
-        
-        // save analysis to repository
         ProjectAnalysis savedAnalysis = analysisRepository.save(analysis);
         log.debug("Project analysis generated and saved for {} with {} milestones.", projectCoreData.getTitle(), milestoneAnalyses.size());
-        
         return savedAnalysis;
     }
 
@@ -186,14 +180,15 @@ public class AnalysisServiceImpl implements AnalysisService {
         }
     }
 
-    private List<TaskAnalysis> buildTaskAnalyses(List<Task> tasks, LocalDate currentDate, LocalDate targetDate) {
+    private List<TaskAnalysis> buildTaskAnalyses(List<Task> tasks, LocalDate currentDate) {
         if (tasks == null || tasks.isEmpty()) {
             return Collections.emptyList();
         }
         return tasks.stream()
                 .map(task -> {
                     double initialCompletion = calculateTaskCompletion(task, currentDate);
-                    double endCompletion = calculateTaskCompletion(task, targetDate);
+                    LocalDate deadline = toLocalDate(task.getStartDate()).plusWeeks(Math.max(1, task.getDurationWeeks()));
+                    double endCompletion = calculateTaskCompletion(task, deadline);
                     return new TaskAnalysis(task.getUuid(), task.getTitle(), initialCompletion, endCompletion);
                 })
                 .collect(Collectors.toList());

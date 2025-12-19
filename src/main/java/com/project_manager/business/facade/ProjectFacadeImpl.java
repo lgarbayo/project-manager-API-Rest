@@ -13,6 +13,7 @@ import com.project_manager.business.project.service.ProjectService;
 import com.project_manager.shared.core.project.ProjectCoreData;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -24,8 +25,8 @@ public class ProjectFacadeImpl implements ProjectFacade {
     
     private final ProjectService projectService;
     private final AnalysisService analysisService;
-    private final TaskEstimationService taskEstimationService;
-    private final TaskDescriptionService taskDescriptionService;
+    private final @Lazy TaskEstimationService taskEstimationService;
+    private final @Lazy TaskDescriptionService taskDescriptionService;
     
     @Override
     public List<Project> listProjects() {

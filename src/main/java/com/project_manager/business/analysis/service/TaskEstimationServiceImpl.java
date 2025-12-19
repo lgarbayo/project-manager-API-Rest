@@ -1,13 +1,14 @@
 package com.project_manager.business.analysis.service;
 
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import com.project_manager.business.analysis.client.TaskEstimatorClient;
 import com.project_manager.business.analysis.model.TaskEstimation;
+import com.project_manager.business.facade.ProjectFacade;
 import com.project_manager.business.project.model.Project;
 import com.project_manager.business.project.model.Task;
-import com.project_manager.business.project.service.ProjectService;
 import com.project_manager.shared.exception.ExternalServiceException;
 import com.project_manager.shared.exception.InvalidArgumentException;
 import com.project_manager.shared.exception.ManagerException;
@@ -20,7 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class TaskEstimationServiceImpl implements TaskEstimationService {
 
-    private final ProjectService projectService;
+    private final ObjectProvider<ProjectFacade> projectFacadeProvider;
     private final TaskEstimatorClient taskEstimatorClient;
     private final TaskPromptBuilder taskPromptBuilder;
 
@@ -28,8 +29,9 @@ public class TaskEstimationServiceImpl implements TaskEstimationService {
     public TaskEstimation estimateTask(String projectUuid, String taskUuid, String promptOverride) {
         validate(projectUuid, taskUuid);
 
-        Project project = projectService.getProject(projectUuid);
-        Task task = projectService.getTask(projectUuid, taskUuid);
+        ProjectFacade projectFacade = projectFacadeProvider.getObject();
+        Project project = projectFacade.getProject(projectUuid);
+        Task task = projectFacade.getTask(projectUuid, taskUuid);
 
         String prompt = taskPromptBuilder.buildEstimationPrompt(project, task, promptOverride);
         TaskEstimation estimation = executeEstimation(projectUuid, taskUuid, prompt);

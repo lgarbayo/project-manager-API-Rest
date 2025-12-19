@@ -2,6 +2,7 @@ package com.project_manager.business.facade;
 
 import com.project_manager.shared.core.project.ProjectCoreData;
 import com.project_manager.business.analysis.model.ProjectAnalysis;
+import com.project_manager.business.analysis.model.TaskDescriptionProposal;
 import com.project_manager.business.analysis.model.TaskEstimation;
 import com.project_manager.business.project.model.Milestone;
 import com.project_manager.business.project.model.Project;
@@ -37,4 +38,7 @@ public interface ProjectFacade {
     
     // Task estimation
     TaskEstimation estimateTask(String projectUuid, String taskUuid, String promptOverride);
+
+    // Task description proposal
+    TaskDescriptionProposal describeTask(String projectUuid, String taskUuid, String promptOverride);
 }

@@ -10,25 +10,46 @@ import com.project_manager.shared.core.dateType.DateType;
 @Component
 public class TaskPromptBuilder {
 
-    public String buildPrompt(Project project, Task task, String promptOverride) {
+    public String buildEstimationPrompt(Project project, Task task, String promptOverride) {
         if (StringUtils.hasText(promptOverride)) {
             return promptOverride.trim();
         }
 
+        String context = baseContext(project, task);
+        return ("""
+                You are an assistant that estimates engineering tasks.
+                %s
+
+                Provide an estimated effort for the task in hours along with a short explanation of the reasoning.
+                """.formatted(context)).trim();
+    }
+
+    public String buildDescriptionPrompt(Project project, Task task, String promptOverride) {
+        if (StringUtils.hasText(promptOverride)) {
+            return promptOverride.trim();
+        }
+
+        String context = baseContext(project, task);
+        return ("""
+                You are an assistant that improves engineering task descriptions.
+                %s
+
+                Propose a concise title and a detailed description that developers can copy into the task, written in the same language as the input.
+                """.formatted(context)).trim();
+    }
+
+    private String baseContext(Project project, Task task) {
         String projectDescription = defaultIfBlank(project.getDescription(), "No project description provided.");
         String taskDescription = defaultIfBlank(task.getDescription(), "No task description provided.");
         String formattedStartDate = formatDate(task.getStartDate());
 
         return ("""
-                You are an assistant that estimates engineering tasks.
                 Project title: %s
                 Project description: %s
                 Task title: %s
                 Task description: %s
                 Task duration (weeks): %d
                 Task start date: %s
-
-                Provide an estimated effort for the task in hours along with a short explanation of the reasoning.
                 """.formatted(
                 project.getTitle(),
                 projectDescription,

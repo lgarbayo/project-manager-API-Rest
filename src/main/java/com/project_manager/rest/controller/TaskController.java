@@ -11,13 +11,16 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.project_manager.business.analysis.model.TaskDescriptionProposal;
 import com.project_manager.business.analysis.model.TaskEstimation;
 import com.project_manager.business.facade.ProjectFacade;
 import com.project_manager.business.project.model.Task;
 import com.project_manager.shared.exception.InvalidArgumentException;
+import com.project_manager.rest.command.TaskDescriptionRequest;
 import com.project_manager.rest.command.TaskEstimationRequest;
 import com.project_manager.rest.command.UpsertTaskCommand;
 import com.project_manager.rest.mapper.RestMapper;
+import com.project_manager.rest.response.TaskDescriptionResponse;
 import com.project_manager.rest.response.TaskEstimationResponse;
 import com.project_manager.rest.response.TaskResponse;
 
@@ -108,5 +111,17 @@ public class TaskController {
         String prompt = request != null ? request.getPrompt() : null;
         TaskEstimation estimation = projectFacade.estimateTask(projectUuid, taskUuid, prompt);
         return restMapper.toTaskEstimationResponse(estimation);
+    }
+
+    @PostMapping("/{taskUuid}/description")
+    public TaskDescriptionResponse describeTask(
+            @PathVariable String projectUuid,
+            @PathVariable String taskUuid,
+            @RequestBody(required = false) TaskDescriptionRequest request
+    ) {
+        log.debug("POST /project/{}/task/{}/description - Requesting description", projectUuid, taskUuid);
+        String prompt = request != null ? request.getPrompt() : null;
+        TaskDescriptionProposal proposal = projectFacade.describeTask(projectUuid, taskUuid, prompt);
+        return restMapper.toTaskDescriptionResponse(proposal);
     }
 }

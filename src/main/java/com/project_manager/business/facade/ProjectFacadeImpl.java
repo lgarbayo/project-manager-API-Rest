@@ -1,13 +1,16 @@
 package com.project_manager.business.facade;
 
 import com.project_manager.business.analysis.model.ProjectAnalysis;
+import com.project_manager.business.analysis.model.TaskDescriptionProposal;
+import com.project_manager.business.analysis.model.TaskEstimation;
 import com.project_manager.business.analysis.service.AnalysisService;
+import com.project_manager.business.analysis.service.TaskDescriptionService;
+import com.project_manager.business.analysis.service.TaskEstimationService;
 import com.project_manager.business.project.model.Milestone;
 import com.project_manager.business.project.model.Project;
 import com.project_manager.business.project.model.Task;
 import com.project_manager.business.project.service.ProjectService;
 import com.project_manager.shared.core.project.ProjectCoreData;
-import com.project_manager.shared.exception.ConflictException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -21,6 +24,8 @@ public class ProjectFacadeImpl implements ProjectFacade {
     
     private final ProjectService projectService;
     private final AnalysisService analysisService;
+    private final TaskEstimationService taskEstimationService;
+    private final TaskDescriptionService taskDescriptionService;
     
     @Override
     public List<Project> listProjects() {
@@ -49,7 +54,6 @@ public class ProjectFacadeImpl implements ProjectFacade {
     @Override
     public void deleteProject(String projectUuid) {
         log.debug("Deleting project through facade: {}", projectUuid);
-        checkBeforeDeletingProject(projectUuid);
         projectService.deleteProject(projectUuid);
         log.info("Project {} deleted via facade", projectUuid);
     }
@@ -131,6 +135,18 @@ public class ProjectFacadeImpl implements ProjectFacade {
         return analysisService.analyzeProject(projectCoreData, milestones, tasks);
     }
 
+    @Override
+    public TaskEstimation estimateTask(String projectUuid, String taskUuid, String promptOverride) {
+        log.debug("Requesting estimation for project {} task {}", projectUuid, taskUuid);
+        return taskEstimationService.estimateTask(projectUuid, taskUuid, promptOverride);
+    }
+
+    @Override
+    public TaskDescriptionProposal describeTask(String projectUuid, String taskUuid, String promptOverride) {
+        log.debug("Requesting description for project {} task {}", projectUuid, taskUuid);
+        return taskDescriptionService.describeTask(projectUuid, taskUuid, promptOverride);
+    }
+
     private ProjectCoreData mapToProjectCoreData(Project project) {
         return new ProjectCoreData(
             project.getUuid(),
@@ -142,26 +158,4 @@ public class ProjectFacadeImpl implements ProjectFacade {
         );
     }
 
-    private void checkBeforeDeletingProject(String projectUuid) {
-        if (projectUuid == null || projectUuid.trim().isEmpty()) {
-            log.warn("Attempted to delete project with null or empty UUID");
-            throw new ConflictException("Project UUID cannot be null or empty");
-        }
-
-        log.debug("Checking dependencies before deleting project: {}", projectUuid);
-
-        List<Milestone> milestones = projectService.listMilestones(projectUuid);
-        if (!milestones.isEmpty()) {
-            log.warn("Cannot delete project {} - has {} associated milestones", projectUuid, milestones.size());
-            throw new ConflictException("Cannot delete project: project has " + milestones.size() + " associated milestones");
-        }
-
-        List<Task> tasks = projectService.listTasks(projectUuid);
-        if (!tasks.isEmpty()) {
-            log.warn("Cannot delete project {} - has {} associated tasks", projectUuid, tasks.size());
-            throw new ConflictException("Cannot delete project: project has " + tasks.size() + " associated tasks");
-        }
-
-        log.debug("Project {} has no dependencies, safe to delete", projectUuid);
-    }
 }

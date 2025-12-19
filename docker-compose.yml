@@ -33,6 +33,7 @@ services:
       SPRING_DATASOURCE_USERNAME: luis.gf
       SPRING_DATASOURCE_PASSWORD: provisional
       SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
+      RAG_CLIENT_BASE_URL: http://172.17.0.1:8000
       #SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.PostgreSQLDialect
       #SPRING_JPA_HIBERNATE_DDL_AUTO: update
       #SPRING_JPA_SHOW_SQL: false

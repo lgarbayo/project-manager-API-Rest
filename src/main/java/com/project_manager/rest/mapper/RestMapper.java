@@ -3,6 +3,8 @@ package com.project_manager.rest.mapper;
 import com.project_manager.business.analysis.model.MilestoneAnalysis;
 import com.project_manager.business.analysis.model.ProjectAnalysis;
 import com.project_manager.business.analysis.model.TaskAnalysis;
+import com.project_manager.business.analysis.model.TaskDescriptionProposal;
+import com.project_manager.business.analysis.model.TaskEstimation;
 import com.project_manager.business.project.model.Milestone;
 import com.project_manager.business.project.model.Project;
 import com.project_manager.business.project.model.Task;
@@ -39,4 +41,6 @@ public interface RestMapper {
     TaskAnalysisResponse toTaskAnalysisResponse(TaskAnalysis analysis);
     List<MilestoneAnalysisResponse> toMilestoneAnalysisResponseList(List<MilestoneAnalysis> analyses);
     List<TaskAnalysisResponse> toTaskAnalysisResponseList(List<TaskAnalysis> analyses);
+    TaskEstimationResponse toTaskEstimationResponse(TaskEstimation estimation);
+    TaskDescriptionResponse toTaskDescriptionResponse(TaskDescriptionProposal proposal);
 }

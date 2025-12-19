@@ -36,8 +36,8 @@ public class OpenApiRagClient implements TaskEstimatorClient, TaskDescriptionCli
             @Value("${rag.client.estimate-path:/project/%s/task/%s/estimate}") String estimatePathTemplate,
             @Value("${rag.client.description-path:/project/%s/task/%s/description}") String descriptionPathTemplate,
             @Value("${rag.client.api-key:}") String apiKey,
-            @Value("${rag.client.connect-timeout-ms:2000}") long connectTimeout,
-            @Value("${rag.client.read-timeout-ms:10000}") long readTimeout
+            @Value("${rag.client.connect-timeout-ms:5000}") long connectTimeout,
+            @Value("${rag.client.read-timeout-ms:60000}") long readTimeout
     ) {
         this.restTemplate = restTemplateBuilder
                 .setConnectTimeout(Duration.ofMillis(connectTimeout))

@@ -31,3 +31,9 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Local context uploads
+context/
+
+# Project definition PDF
+Project - Awesome Project Management - REST API_v0.0.1.pdf

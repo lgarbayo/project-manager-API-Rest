@@ -1,4 +1,4 @@
-# 📌 Awesome Project Manager API
+# Awesome Project Manager API
 
 [![Java](https://img.shields.io/badge/Java-21-ff8c00.svg)](https://adoptium.net/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5.6-6db33f.svg)](https://spring.io/projects/spring-boot)
@@ -8,7 +8,7 @@ API REST construida con Spring Boot para gestionar proyectos, hitos y tareas, e 
 
 ---
 
-## ✨ Caracteristicas clave
+## Caracteristicas clave
 
 - **CRUD completo** para proyectos, hitos y tareas.
 - **Analisis de avance** por proyecto con detalle por hitos y tareas.
@@ -17,7 +17,7 @@ API REST construida con Spring Boot para gestionar proyectos, hitos y tareas, e 
 
 ---
 
-## 🧱 Arquitectura
+## Arquitectura
 
 ```mermaid
 graph TD
@@ -28,7 +28,7 @@ graph TD
 
 ---
 
-## 🗂️ Estructura del proyecto
+## Estructura del proyecto
 
 ```mermaid
 graph TD
@@ -41,14 +41,14 @@ graph TD
 
 ---
 
-## ⚙️ Requisitos previos
+## Requisitos previos
 
 - Java 21 (Temurin recomendado).
 - Maven 3.9+ o el wrapper `./mvnw`.
 
 ---
 
-## 🚀 Puesta en marcha
+## Puesta en marcha
 
 ### Opcion 1 · Local con Maven
 
@@ -61,7 +61,7 @@ La aplicacion escucha en `http://localhost:8080`.
 
 ---
 
-## ⚙️ Configuracion
+## Configuracion
 
 Parametros por defecto (`src/main/resources/application.properties`):
 
@@ -71,7 +71,7 @@ spring.application.name=awesomeProjectManager
 
 ---
 
-## 📡 API REST
+## API REST
 
 | Metodo | Endpoint                                      | Descripcion                     |
 |--------|-----------------------------------------------|---------------------------------|
@@ -94,7 +94,7 @@ spring.application.name=awesomeProjectManager
 
 ---
 
-## 🧾 Modelos y comandos
+## Modelos y comandos
 
 ```ts
 export interface DateType {
@@ -153,7 +153,7 @@ export interface UpsertTaskCommand {
 
 ---
 
-## ✅ Ejemplo de creacion de proyecto
+## Ejemplo de creacion de proyecto
 
 POST /project
 Content-Type: application/json
@@ -173,7 +173,7 @@ Content-Type: application/json
 
 ---
 
-## ❗ Formato de error
+## Formato de error
 
 ```ts
 export interface Error {
@@ -184,7 +184,7 @@ export interface Error {
 
 ---
 
-## 🙌 Contribuciones
+## Contribuciones
 
 1. Haz un fork del repositorio.
 2. Crea una rama feature: `git checkout -b feature/nueva-funcionalidad` que cuelgue de la rama develop.

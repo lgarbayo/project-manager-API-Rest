@@ -32,7 +32,7 @@ graph TD
 
 ```mermaid
 graph TD
-  A[src/main/java/projectManager]
+  A[src/main/java/project_manager]
   A --> B[AwesomeProjectManagerApplication.java]
   A --> C[...]
   D[src/main/resources]

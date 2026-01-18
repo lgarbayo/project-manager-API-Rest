@@ -1,8 +1,4 @@
-Aquí tienes el `README.md` adaptado específicamente para tu repositorio **Project Manager API Rest**, manteniendo la estructura y el estilo visual que me has solicitado:
-
----
-
-# 📁 Project Manager API Rest
+# Project Manager API Rest
 
 API REST robusta construida con Spring Boot para la gestión integral de proyectos, tareas y usuarios. Permite la asignación de recursos, seguimiento de estados de tareas y gestión de dependencias entre entidades de negocio, optimizada para entornos de gestión de equipos.
 

@@ -1,16 +1,19 @@
-# Project Manager API Rest
+# 📌 Awesome Project Manager API
 
-API REST robusta construida con Spring Boot para la gestión integral de proyectos, tareas y usuarios. Permite la asignación de recursos, seguimiento de estados de tareas y gestión de dependencias entre entidades de negocio, optimizada para entornos de gestión de equipos.
+[![Java](https://img.shields.io/badge/Java-21-ff8c00.svg)](https://adoptium.net/)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5.6-6db33f.svg)](https://spring.io/projects/spring-boot)
+[![Maven](https://img.shields.io/badge/Maven-3.9+-c71a36.svg)](https://maven.apache.org/)
+
+API REST construida con Spring Boot para gestionar proyectos, hitos y tareas, e incluir un endpoint de analisis que resume el avance de un proyecto. Este README se basa en la definicion del contrato v0.0.1.
 
 ---
 
-## ✨ Características clave
+## ✨ Caracteristicas clave
 
-* **Gestión de Entidades**: Control total sobre `User`, `Project` y `Task` con relaciones complejas.
-* **Arquitectura Hexagonal**: Separación clara entre adaptadores de entrada/salida y la lógica de negocio central.
-* **Validaciones de Negocio**: Control de estados de tareas, fechas de proyectos y consistencia en la asignación de usuarios.
-* **Persistencia Flexible**: Configurado actualmente con H2 (en memoria) para desarrollo rápido, fácilmente extensible a bases de datos relacionales.
-* **Manejo de Errores**: Sistema centralizado para capturar excepciones de dominio y devolver códigos de estado HTTP precisos.
+- **CRUD completo** para proyectos, hitos y tareas.
+- **Analisis de avance** por proyecto con detalle por hitos y tareas.
+- **Contratos claros**: comandos de alta/actualizacion separados de los recursos.
+- **Estructura simple** lista para evolucionar hacia una arquitectura por capas.
 
 ---
 
@@ -18,12 +21,9 @@ API REST robusta construida con Spring Boot para la gestión integral de proyect
 
 ```mermaid
 graph TD
-  Client[Cliente REST] -->|HTTP| Controllers[Adapters / Web]
-  Controllers --> Services[Domain Services]
-  Services --> Repositories[Ports / Repository]
-  Repositories --> Adapters[Adapters / Persistence]
-  Adapters --> DB[(H2 DB / SQL)]
-
+  Client[Cliente REST] -->|HTTP| Controllers[Controllers]
+  Controllers --> Services[Servicios]
+  Services --> Repositories[Repositorios]
 ```
 
 ---
@@ -32,109 +32,161 @@ graph TD
 
 ```mermaid
 graph TD
-  A[src/main/java/com/lgarbayo/projectmanager]
-  A --> B[ProjectmanagerApplication.java]
-  A --> C[adapter]
-  C --> C1[web]
-  C1 --> C11[UserController.java]
-  C1 --> C12[ProjectController.java]
-  C1 --> C13[TaskController.java]
-  C --> C2[persistence]
-  C2 --> C21[entity]
-  C2 --> C22[jpa]
-  A --> D[domain]
-  D --> D1[model]
-  D --> D2[service]
-  A --> E[resources]
-  E --> E1[application.properties]
-
+  A[src/main/java/projectManager]
+  A --> B[AwesomeProjectManagerApplication.java]
+  A --> C[...]
+  D[src/main/resources]
+  D --> D1[application.properties]
 ```
 
 ---
 
 ## ⚙️ Requisitos previos
 
-* Java 21.
-* Maven 3.9+.
-* IDE (IntelliJ IDEA, VS Code o Eclipse).
+- Java 21 (Temurin recomendado).
+- Maven 3.9+ o el wrapper `./mvnw`.
 
 ---
 
 ## 🚀 Puesta en marcha
 
-### Ejecución Local con Maven
+### Opcion 1 · Local con Maven
 
 ```bash
 ./mvnw clean package
 ./mvnw spring-boot:run
-
 ```
 
-La aplicación estará disponible en: `http://localhost:8080`.
-La consola de H2 se puede acceder en: `http://localhost:8080/h2-console` (si está habilitada).
+La aplicacion escucha en `http://localhost:8080`.
 
 ---
 
-## ⚙️ Configuración
+## ⚙️ Configuracion
 
-Parámetros por defecto (`src/main/resources/application.properties`):
+Parametros por defecto (`src/main/resources/application.properties`):
 
 ```properties
-spring.application.name=projectmanager
-spring.datasource.url=jdbc:h2:mem:projectdb
-spring.datasource.driverClassName=org.h2.Driver
-spring.datasource.username=sa
-spring.datasource.password=
-spring.jpa.database-platform=org.hibernate.dialect.H2Dialect
-spring.h2.console.enabled=true
-
+spring.application.name=awesomeProjectManager
 ```
 
 ---
 
 ## 📡 API REST
 
-| Método | Endpoint | Descripción |
-| --- | --- | --- |
-| GET | `/users` | Lista todos los usuarios |
-| POST | `/users` | Crea un nuevo usuario |
-| GET | `/projects` | Lista todos los proyectos |
-| POST | `/projects` | Crea un nuevo proyecto |
-| GET | `/projects/{id}` | Obtiene detalle de un proyecto |
-| PUT | `/projects/{id}` | Actualiza datos de un proyecto |
-| DELETE | `/projects/{id}` | Elimina un proyecto |
-| GET | `/tasks` | Lista todas las tareas |
-| POST | `/tasks` | Crea una tarea y la asigna a un proyecto |
-| PATCH | `/tasks/{id}/status` | Cambia el estado de una tarea |
+| Metodo | Endpoint                                      | Descripcion                     |
+|--------|-----------------------------------------------|---------------------------------|
+| GET    | /project                                      | Lista proyectos                 |
+| POST   | /project                                      | Crea un proyecto                |
+| GET    | /project/{projectUuid}                        | Recupera un proyecto            |
+| PUT    | /project/{projectUuid}                        | Actualiza un proyecto           |
+| DELETE | /project/{projectUuid}                        | Borra un proyecto               |
+| GET    | /project/{projectUuid}/milestone              | Lista hitos                     |
+| POST   | /project/{projectUuid}/milestone              | Anade un hito                   |
+| GET    | /project/{projectUuid}/milestone/{milestoneUuid} | Recupera un hito                |
+| PUT    | /project/{projectUuid}/milestone/{milestoneUuid} | Actualiza un hito               |
+| DELETE | /project/{projectUuid}/milestone/{milestoneUuid} | Borra un hito                   |
+| GET    | /project/{projectUuid}/task                   | Lista tareas                    |
+| POST   | /project/{projectUuid}/task                   | Crea una tarea                  |
+| GET    | /project/{projectUuid}/task/{taskUuid}        | Recupera una tarea              |
+| PUT    | /project/{projectUuid}/task/{taskUuid}        | Actualiza una tarea             |
+| DELETE | /project/{projectUuid}/task/{taskUuid}        | Borra una tarea                 |
+| GET    | /project/{projectUuid}/analysis               | Analisis del proyecto           |
 
-### Ejemplo de creación de Proyecto
+---
 
-**POST** `/projects`
+## 🧾 Modelos y comandos
 
-```json
-{
-  "name": "Sistema de Gestión v2",
-  "description": "Desarrollo del módulo de reportes",
-  "startDate": "2024-02-01",
-  "status": "ACTIVE"
+```ts
+export interface DateType {
+  year: number; // YYYY
+  month: number; // 0-11
+  week: number; // 0-3
 }
 
+export interface Project {
+  uuid: string;
+  title: string;
+  description?: string;
+  startDate: DateType;
+  endDate: DateType;
+  additionalFields?: Record<string, string>;
+}
+
+export interface Milestone {
+  uuid: string;
+  projectUuid: string;
+  title: string;
+  date: DateType;
+  description?: string;
+}
+
+export interface Task {
+  uuid: string;
+  projectUuid: string;
+  title: string;
+  description?: string;
+  durationWeeks: number;
+  startDate: DateType;
+}
+
+export interface UpsertProjectCommand {
+  title: string;
+  description?: string;
+  startDate: DateType;
+  endDate: DateType;
+  additionalFields?: Record<string, string>;
+}
+
+export interface UpsertMilestoneCommand {
+  title: string;
+  date: DateType;
+  description?: string;
+}
+
+export interface UpsertTaskCommand {
+  title: string;
+  description?: string;
+  durationWeeks: number;
+  startDate: DateType;
+}
 ```
 
 ---
 
-## ✅ Reglas de negocio destacadas
+## ✅ Ejemplo de creacion de proyecto
 
-* **Integridad de Proyectos**: No se puede eliminar un proyecto que tenga tareas activas con usuarios asignados.
-* **Estados de Tarea**: Las tareas siguen un flujo lógico (TODO -> IN_PROGRESS -> DONE).
-* **Validación de Fechas**: La fecha de finalización de una tarea no puede ser anterior a la fecha de inicio del proyecto.
-* **Desacoplamiento**: El dominio no conoce las entidades JPA, utiliza mappers para transformar los datos en la capa de persistencia.
+POST /project
+Content-Type: application/json
+
+```json
+{
+  "title": "Lanzamiento Q4",
+  "description": "Plan de entrega de producto",
+  "startDate": { "year": 2025, "month": 9, "week": 0 },
+  "endDate": { "year": 2025, "month": 11, "week": 2 },
+  "additionalFields": {
+    "owner": "equipo-producto",
+    "priority": "alta"
+  }
+}
+```
+
+---
+
+## ❗ Formato de error
+
+```ts
+export interface Error {
+  type: string;
+  description: string;
+}
+```
 
 ---
 
 ## 🙌 Contribuciones
 
-1. Haz un **fork** del repositorio.
-2. Crea una rama para tu mejora: `git checkout -b feature/nueva-mejora`.
-3. Realiza tus cambios y asegúrate de que el código compila.
-4. Envía un **Pull Request** detallando los cambios realizados.
+1. Haz un fork del repositorio.
+2. Crea una rama feature: `git checkout -b feature/nueva-funcionalidad` que cuelgue de la rama develop.
+3. Asegurate de pasar los tests y respeta el estilo del proyecto.
+4. Envia un pull request explicando claramente el cambio.
